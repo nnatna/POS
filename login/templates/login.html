@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}POS{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
+</head>
+
+<body>
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class="card rounded-4 shadow">
+            <div class="bg-warning-subtle rounded-top-4 text-center text-dark m-0 p-4">
+                <h2 class="fw-bolder">POS</h2>
+            </div>
+
+            <form method="post" class="p-4">
+                {% csrf_token %}
+                {% if form.errors or form.non_field_errors %}
+                    <div class="alert alert-danger py-2 px-3 mb-3 small rounded-3">
+                        <i class="fa-solid fa-circle-exclamation me-2"></i>
+                        Invalid username or password.
+                    </div>
+                {% endif %}
+                <input type="hidden" name="next" value="{{ next }}">
+
+                <div class="text-muted">
+                    <p>Please login to continue</p>
+                </div>
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span
+                            class="input-group-text border-end-0 rounded-start-pill border-dark-subtle text-secondary">
+                            <i class="fa-solid fa-user"></i> </span>
+                        <input type="text"
+                            class="form-control border-start-0 rounded-end-pill shadow-none border-dark-subtle"
+                            name="username" placeholder="Username" required autofocus autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="input-group">
+                        <span
+                            class="input-group-text border-end-0 rounded-start-pill border-dark-subtle text-secondary">
+                            <i class="fa-solid fa-key"></i> </span>
+                        <input type="password"
+                            class="form-control border-start-0 rounded-end-pill shadow-none border-dark-subtle"
+                            name="password" placeholder="Password" required autocomplete="current-password">
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <button type="submit" class="btn btn-warning w-100 rounded-pill fw-bold">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+
+</html>

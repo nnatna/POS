@@ -1,0 +1,57 @@
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Checkout Order</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5 class="mb-2">Select payment method</h5>
+
+                <div class="d-flex justify-content-between mb-3">
+
+                    <!-- KHQR -->
+                    <input type="radio" class="btn-check" name="payment" id="khqr" checked>
+                    <label class="btn btn-outline-warning w-50 me-2 fw-medium" for="khqr">KHQR</label>
+
+                    <!-- Cash -->
+                    <input type="radio" class="btn-check" name="payment" id="cash">
+                    <label class="btn btn-outline-warning w-50 fw-medium" for="cash">Cash</label>
+
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        value="0"
+                        id="checkout-discount"
+                        class="form-control bg-secondary-subtle warning-focus-control"
+                        inputmode="decimal"
+                        autocomplete="off"
+                        placeholder="Enter discount %">
+                </div>
+                <div class="summary-box mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Subtotal:</span>
+                        <span id="checkout-subtotal">$0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Discount:</span>
+                        <span id="checkout-discount-amount">-$0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between total">
+                        <span>Total:</span>
+                        <span id="checkout-total">$0.00</span>
+                    </div>
+                </div>
+                <div id="checkout-feedback" class="small text-danger"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-warning fw-medium" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="confirm-checkout-btn" class="btn btn-warning fw-medium">Confirm Checkout</button>
+            </div>
+        </div>
+    </div>
+</div>

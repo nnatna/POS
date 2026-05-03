@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<section class="d-flex flex-column h-100 w-100 overflow-auto settings-page-section">
+  <div class="container-fluid p-0 flex-grow-1">
+    <div class="row g-0">
+      {% include 'includes/settings_sidebar.html' %}
+      <div class="col-12 col-md-9 col-lg-9 main-content p-4">
+        {% block settings_panel %}{% endblock %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

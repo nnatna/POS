@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Products
+{% endblock %}
+
+{% if open_add_modal %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const addProductModal = document.getElementById('addProductModal');
+    if (addProductModal) {
+      const modal = new bootstrap.Modal(addProductModal);
+      modal.show();
+    }
+  });
+</script>
+{% endif %}
+
+{% block content %}
+  <section class="d-flex flex-column h-100 px-3 py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-shrink-0">
+      <div>
+        <h1 class="mb-0">Products</h1>
+        <p class="mb-0">Manage your products here.</p>
+      </div>
+      <button class="btn btn-warning fw-medium mt-3" data-bs-toggle="modal" data-bs-target="#addProductModal">Add New Product</button>
+      {% include 'includes/add_product.html' %}
+    </div>
+
+    <div class="product-list-scroll flex-grow-1">
+      {% include 'includes/list_product.html' %}
+    </div>
+
+    {% include 'includes/delete_product.html' %}
+  </section>
+{% endblock %}
+
+{% block sidebar_order %}
+<aside class="order-sidebar bg-light border-start flex-shrink-0">
+    {% include 'includes/order_sidebar.html' %}
+</aside>
+{% endblock sidebar_order %}

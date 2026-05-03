@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<section class="home-content d-flex flex-column h-100 w-100 p-4 overflow-hidden">
+    <div class="flex-shrink-0">
+        {% include 'includes/category_filter.html' %}
+    </div>
+
+    {% block page_content %}
+    <div class="product-list-scroll flex-grow-1 mt-3">
+        <div class="row g-3 mx-0" id="product-list">
+            {% for product in products %}
+                {% include 'includes/list_product_card.html' %}
+            {% empty %}
+                <div class="col-12 p-4 text-muted">
+                    No products available.
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endblock page_content %}
+</section>
+{% endblock content %}
+
+{% block sidebar_order %}
+<aside class="order-sidebar bg-light border-start flex-shrink-0">
+    {% include 'includes/order_sidebar.html' %}
+</aside>
+{% endblock sidebar_order %}

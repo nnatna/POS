@@ -1,0 +1,55 @@
+from django.db import models
+from products.models import Product
+from django.utils import timezone
+from decimal import Decimal
+
+class Order(models.Model):
+    order_number = models.CharField(max_length=20, unique=True, editable=False)
+    
+    def save(self, *args, **kwargs):
+        if not self.order_number:
+            date_str = timezone.localtime(timezone.now()).strftime('%Y%m%d')
+            prefix = f'ORD-{date_str}-'
+            
+            last_order = Order.objects.filter(order_number__startswith=prefix).order_by('-order_number').first()
+            
+            if last_order:
+                last_num = int(last_order.order_number.split('-')[-1])
+                new_num = f'{(last_num + 1):04d}'
+            else:
+                new_num = '0001'
+            
+            self.order_number = f'{prefix}{new_num}'
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.order_number
+
+class Sale(models.Model):
+    PAYMENT_METHOD_CHOICES = [
+        ('khqr', 'KHQR'),
+        ('cash', 'Cash'),
+    ]
+
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField() 
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, editable=False) 
+    discount = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    payment_method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES, default='khqr')
+    sale_date = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        unit_price = self.product.price
+        subtotal = unit_price * self.quantity
+        
+        if self.discount > 0:
+            discount_amount = subtotal * (self.discount / Decimal('100'))
+            self.total_price = subtotal - discount_amount
+        else:
+            self.total_price = subtotal
+            
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Sale {self.id} - {self.product.name} ({self.order.order_number})"

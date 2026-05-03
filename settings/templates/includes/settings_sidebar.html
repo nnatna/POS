@@ -1,0 +1,126 @@
+{# Sidebar for Settings area — no user.profile required #}
+<div class="col-12 col-md-3 col-lg-3">
+  <div class="border-end h-100">
+    <div class="card-body d-flex flex-column align-items-center text-center p-3">
+      <div class="position-relative mb-3">
+        {% if user.is_authenticated %}
+          {% with display_name=user.get_full_name|default:user.username %}
+            <img
+              src="{% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}https://ui-avatars.com/api/?name={{ display_name|urlencode }}&background=F97316&color=fff&size=128{% endif %}"
+              alt="Avatar"
+              id="avatar-img"
+              class="rounded-circle border border-3 border-warning"
+              style="width: 96px; height: 96px; object-fit: cover;"
+            />
+          {% endwith %}
+
+          <label
+            for="avatar-upload"
+            title="Change photo"
+            class="position-absolute bottom-0 end-0 d-flex align-items-center justify-content-center bg-warning rounded-circle border border-white"
+            style="width: 34px; height: 34px; cursor: pointer;"
+          >
+            <i class="fa-solid fa-pen-to-square"></i>
+          </label>
+        {% else %}
+          <img
+            src="https://ui-avatars.com/api/?name=Guest&background=F97316&color=fff&size=128"
+            alt="Avatar"
+            id="avatar-img"
+            class="rounded-circle border border-3 border-warning"
+            width="96px"
+            height="96px"
+          />
+        {% endif %}
+      </div>
+
+      {% if user.is_authenticated %}
+        <input type="file" id="avatar-upload" class="d-none" accept="image/*" />
+      {% endif %}
+
+      <h5 class="mb-1">
+        {% if user.is_authenticated %}
+          {{ user.get_full_name|default:user.username }}
+        {% else %}
+          Guest
+        {% endif %}
+      </h5>
+      <p class="text-muted mb-4">
+        {{ user.profile.position|default:"Staff" }}
+      </p>
+
+      <div class="w-100 mb-3">
+        <nav class="nav nav-pills flex-column gap-2">
+          <a
+            class="nav-link d-flex justify-content-between align-items-center text-dark icon-link-hover rounded-3 px-3 py-2 {% if active_tab == 'personal' %}fw-medium bg-warning active{% endif %}"
+            href="{% url 'settings' %}"
+          >
+            Personal Information <span class="fs-6 opacity-75">›</span>
+          </a>
+          <a
+            class="nav-link d-flex justify-content-between align-items-center text-dark table-hover rounded-3 px-3 py-2 {% if active_tab == 'employees' %}fw-medium bg-warning active{% endif %}"
+            href="#"
+            title="Coming soon"
+          >
+            Employees Management <span class="fs-6 opacity-75">›</span>
+          </a>
+          <a
+            class="nav-link d-flex justify-content-between align-items-center text-dark rounded-3 px-3 py-2 {% if active_tab == 'hours' %}fw-medium bg-warning active{% endif %}"
+            href="#"
+            title="Coming soon"
+          >
+            Opening Hours <span class="fs-6 opacity-75">›</span>
+          </a>
+          <a
+            class="nav-link d-flex justify-content-between align-items-center text-dark rounded-3 px-3 py-2 {% if active_tab == 'login' %}fw-medium bg-warning active{% endif %}"
+            href="#"
+            title="Coming soon"
+          >
+            Login &amp; Password <span class="fs-6 opacity-75">›</span>
+          </a>
+        </nav>
+      </div>
+
+      {% if user.is_authenticated %}
+        <div class="w-100 mt-auto pt-3 border-top">
+          <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-warning w-100">
+              <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
+            </button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('avatar-upload')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+    fetch("{% url 'upload_avatar' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.querySelectorAll('#avatar-img').forEach(img => {
+                img.src = data.avatar_url + '?t=' + new Date().getTime();
+            });
+        } else {
+            alert('Upload failed: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+</script>

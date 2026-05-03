@@ -1,0 +1,75 @@
+<div class="d-flex flex-column h-100 bg-white shadow-sm">
+  <div class="p-4 border-bottom">
+    {% if user.is_authenticated %}
+      <small class="text-uppercase text-secondary d-block mb-1" style="font-size: 0.7rem; letter-spacing: 1px;">Logged in as</small>
+      <h5 class="fw-bold mb-2">{{ user.get_full_name|default:user.username }}</h5>
+      {% if user.is_staff or user.is_superuser %}
+        <span class="badge text-bg-danger rounded-pill px-3 py-2">
+          <i class="fa-solid fa-shield-halved me-1"></i> 
+        {{ user.profile.position|default:"Staff" }}
+        </span>
+      {% else %}
+        <span class="badge text-bg-secondary rounded-pill px-3 py-2">
+          <i class="fa-solid fa-user"></i>
+        {{ user.profile.position|default:"Staff" }}
+        </span>
+      {% endif %}
+    {% endif %}
+  </div>
+
+  <ul class="nav nav-pills flex-column gap-1 p-3 sidebar-menu flex-grow-1" id="sidebarNav">
+    <li class="nav-item">
+      <a href="{% url 'home' %}" class="nav-link rounded py-2 px-3">
+        <i class="fa-solid fa-house me-2"></i>Home
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'dashboard' %}" class="nav-link rounded py-2 px-3">
+        <i class="fa-solid fa-chart-line me-2"></i>Dashboard
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'product' %}" class="nav-link rounded py-2 px-3">
+        <i class="fa-solid fa-box-archive me-2"></i>Product
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'brands' %}" class="nav-link rounded py-2 px-3">
+        <i class="fa-solid fa-font-awesome me-2"></i>Brand
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'category' %}" class="nav-link rounded py-2 px-3">
+        <i class="fa-solid fa-layer-group me-2"></i>Category
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'sales' %}" class="nav-link rounded py-2 px-3">
+        <i class="fa-solid fa-cart-shopping me-2"></i>Sales
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'report' %}" class="nav-link rounded py-2 px-3">
+        <i class="fa-solid fa-chart-column me-2"></i>Report
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'settings' %}" class="nav-link rounded py-2 px-3">
+        <i class="fa-solid fa-gear me-2"></i>Settings
+      </a>
+    </li>
+  </ul>
+
+  <div class="p-3 mt-auto">
+    <form action="{% url 'logout' %}" method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-outline-danger w-100 py-2">
+        <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
+      </button>
+    </form>
+  </div>
+</div>
+
+<style>
+
+</style>

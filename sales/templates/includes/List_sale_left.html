@@ -1,0 +1,39 @@
+<div class="d-flex flex-column h-100 bg-white">
+  <div class="p-3 border-bottom bg-white flex-shrink-0">
+    <p class="mb-0 fw-bold">Order Menu</p>
+  </div>
+  <div id="order-items-container" class="flex-grow-1 overflow-y-auto p-3">
+    {% for sale in sales %}
+      <div class="d-flex justify-content-between border-bottom py-2 mb-2 align-items-center">
+        {% if sale.product.image %}
+          <img src="{{ sale.product.image.url }}" alt="{{ sale.product.name }}" style="width: 40px; height: 40px; object-fit: cover;" class="rounded" />
+        {% else %}
+          <div class="rounded bg-secondary d-flex align-items-center justify-content-center text-white" style="width: 40px; height: 40px;">
+            <i class="fa-solid fa-image"></i>
+          </div>
+        {% endif %}
+        <span class="flex-grow-1 ms-2 fw-semibold small text-truncate">{{ sale.product.name }}</span>
+        <span class="text-danger fw-semibold">{{ sale.quantity }} x ${{ sale.product.price|floatformat:2 }}</span>
+      </div>
+    {% endfor %}
+    {% if sales|length == 0 %}
+      <div class="text-muted text-center py-4">No items in the order.</div>
+    {% endif %}
+  </div>
+
+  <div class="border-top p-3 bg-white flex-shrink-0">
+    <div class="d-flex justify-content-between mb-1">
+      <span>Subtotal:</span>
+      <span id="subtotal-value">${{ subtotal|floatformat:2 }}</span>
+    </div>
+    <div class="d-flex justify-content-between mb-1">
+      <span>Discount:</span>
+      <span id="discount-value">{{ discount|floatformat:2 }}%</span>
+    </div>
+    <div class="d-flex justify-content-between fw-bold mb-3">
+      <span>Total Item:</span>
+      <span id="total-items-value">{{ total_items }}</span>
+    </div>
+    <button type="button" id="checkout-btn" class="btn btn-warning w-100 fw-medium py-2" data-bs-toggle="modal" data-bs-target="#exampleModal">Print</button>
+  </div>
+</div>
