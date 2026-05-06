@@ -82,6 +82,7 @@
             value="{% if form.dob.value %}{{ form.dob.value|date:'Y-m-d' }}{% endif %}"
             />
           </div>
+        {% if can_edit_position %}
         <div class="col-12 col-md-6">
           <label class="form-label text-muted fw-medium" for="id_position">Position</label>
           <select
@@ -96,12 +97,23 @@
             <div class="invalid-feedback">{{ form.position.errors|join:", " }}</div>
           {% endif %}
         </div>
-      </div>
+        {% else %}
+        <div class="col-12 col-md-6">
+          <label class="form-label text-muted fw-medium">Position</label>
+          <input
+            type="text"
+            class="form-control plaintext"
+            value="{{ user_profile.position|default:'Staff' }}"
+            readonly
+          />
+          <small class="text-muted">Only Owner users can change positions</small>
+        </div>
+        {% endif %}
 
-      <button type="submit" class="btn btn-warning mt-4 w-100">Save Changes</button>
+      <div class="d-flex justify-content-end mt-4 w-100">
+        <button type="submit" class="btn btn-warning fw-medium w-100">Save Changes</button>
+      </div>
     </form>
   </div>
 </div>
-{% else %}
-  <div class="text-muted">Form is not available.</div>
 {% endif %}

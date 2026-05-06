@@ -7,7 +7,11 @@ class PersonalInformationForm(forms.Form):
     email = forms.EmailField(required=False, widget=forms.EmailInput(attrs={'class': 'form-control'}))
     phone = forms.CharField(max_length=32, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
     dob = forms.DateField(required=False, widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}))
-    position = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    position = forms.ChoiceField(
+        required=False,
+        choices=[('Owner', 'Owner'), ('Staff', 'Staff')],
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
 
 class EmployeeForm(forms.Form):
     username = forms.CharField(max_length=150, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))

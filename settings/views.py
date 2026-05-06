@@ -28,10 +28,12 @@ def settings(request):
                     user.first_name = form.cleaned_data.get('first_name', '')
                     user.email = form.cleaned_data.get('email', '')
                     user.save()
-                    
+
                     profile.phone = form.cleaned_data.get('phone', '')
                     profile.dob = form.cleaned_data.get('dob')
-                    profile.position = form.cleaned_data.get('position', '')
+                    # Only allow position changes for Owner users
+                    if user_is_owner(request.user):
+                        profile.position = form.cleaned_data.get('position', '')
                     profile.save()
 
                 messages.success(request, 'Your profile has been updated successfully.')
@@ -52,6 +54,7 @@ def settings(request):
         'form': form,
         'active_tab': 'personal',
         'profile': profile,
+        'can_edit_position': user_is_owner(request.user),
     }
     return render(request, 'settings.html', context)
 

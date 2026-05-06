@@ -1,15 +1,16 @@
 {# Sidebar for Settings area — no user.profile required #}
 <div class="col-12 col-md-3 col-lg-3 border-end" id="sidebar">
-
   <div class="d-flex flex-column h-100 bg-white">
     <div class="card-body d-flex flex-column align-items-center text-center p-3">
       <div class="position-relative mb-3">
         {% if user.is_authenticated %}
           {% with display_name=user.get_full_name|default:user.username %}
-            <img src="{% if user.profile.avatar %}
-                {{ user.profile.avatar.url }}
+            <img src="{% if user_profile and user_profile.avatar %}
+                {{ user_profile.avatar.url }}
               {% else %}
+                
                 https://ui-avatars.com/api/?name={{ display_name|urlencode }}&background=F97316&color=fff&size=128
+
               {% endif %}"
               alt="Avatar"
               id="avatar-img"
@@ -34,30 +35,29 @@
           Guest
         {% endif %}
       </h5>
-      <p class="text-muted mb-4">{{ user.profile.position|default:'Staff' }}</p>
+      <p class="text-muted mb-4">{{ user_profile.position|default:'Staff' }}</p>
 
       <ul class="nav nav-pills flex-column gap-1 sidebar-menu flex-grow-1 w-100" id="SidebarNav">
-        <li class="nav-item w-100">
-          <a href="{% url 'settings' %}" class="nav-link w-100 d-flex justify-content-start align-content-center py-2 px-3
-            {% if active_tab == 'personal' %}fw-medium bg-warning active{% endif %}">
-            <i class="fa-solid fa-user me-2"></i>Personal Information</a>
+        <!-- Personal Information -->
+        <li class="nav-item">
+          <a href="{% url 'settings' %}" class="nav-link d-flex align-items-center py-2 px-3 {% if active_tab == 'personal' %}fw-medium bg-warning active text-dark{% endif %}"><i class="fa-solid fa-user me-2"></i>Personal Information</a>
         </li>
-        {% if user.profile.position == 'Owner' %}
-          <li class="nav-item w-100">
-            <a href="{% url 'settings_employees' %}" class="nav-link w-100 d-flex justify-content-start align-content-center py-2 px-3
-            {% if active_tab == 'employees' %}fw-medium bg-warning active{% endif %}">
-            <i class="fa-solid fa-users me-2"></i>Employees Management</a>
+
+        <!-- Employees Management (Conditional) -->
+        {% if user_profile.position == 'Owner' %}
+          <li class="nav-item">
+            <a href="{% url 'settings_employees' %}" class="nav-link d-flex align-items-center py-2 px-3 {% if active_tab == 'employees' %}fw-medium bg-warning active text-dark{% endif %}"><i class="fa-solid fa-users me-2"></i>Employees Management</a>
           </li>
         {% endif %}
-        <li class="nav-item w-100">
-          <a href="{% url 'settings_hours' %}" class="nav-link w-100 d-flex justify-content-start align-content-center py-2 px-3
-            {% if active_tab == 'hours' %}fw-medium bg-warning active{% endif %}">
-            <i class="fa-solid fa-clock me-2"></i>Opening Hours</a>
+
+        <!-- Opening Hours -->
+        <li class="nav-item">
+          <a href="{% url 'settings_hours' %}" class="nav-link d-flex align-items-center py-2 px-3 {% if active_tab == 'hours' %}fw-medium bg-warning active text-dark{% endif %}"><i class="fa-solid fa-clock me-2"></i>Opening Hours</a>
         </li>
-        <li class="nav-item w-100">
-          <a href="{% url 'settings_password' %}" class="nav-link w-100 d-flex justify-content-start align-content-center py-2 px-3
-            {% if active_tab == 'password' %}fw-medium bg-warning active{% endif %}">
-            <i class="fa-solid fa-lock me-2"></i>Login &amp; Password</a>
+
+        <!-- Login & Password -->
+        <li class="nav-item">
+          <a href="{% url 'settings_password' %}" class="nav-link d-flex align-items-center py-2 px-3 {% if active_tab == 'password' %}fw-medium bg-warning active text-dark{% endif %}"><i class="fa-solid fa-lock me-2"></i>Login &amp; Password</a>
         </li>
       </ul>
     </div>

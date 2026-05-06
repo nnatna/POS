@@ -105,7 +105,7 @@
             <table class="table table-hover align-middle">
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <th>Profile</th>
                   <th>Full Name</th>
                   <th>Username</th>
                   <th>Email</th>
@@ -117,7 +117,9 @@
               <tbody>
                 {% for employee in employees %}
                   <tr>
-                    <td>{{ forloop.counter }}</td>
+                    <td>
+                      <img src="{% if employee.profile.avatar %}{{ employee.profile.avatar.url }}{% else %}https://ui-avatars.com/api/?name={{ employee.first_name|default:employee.username|urlencode }}&background=F97316&color=fff&size=48{% endif %}" alt="Profile Image" class="rounded-circle" width="48" height="48" />
+                    </td>
                     <td>{{ employee.first_name|default:employee.username }}</td>
                     <td>{{ employee.username }}</td>
                     <td>{{ employee.email|default:'—' }}</td>
