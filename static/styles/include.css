@@ -3,14 +3,15 @@
 .sidebar-menu .nav-link {
     color: #495057;
     transition: all 0.2s ease;
+    border-radius: 0.5rem;
 }
 
-.sidebar-menu .nav-link:hover {
-    background-color: #ffc107 !important;
+.sidebar-menu .nav-link:hover:not(.active) {
+    background-color: rgba(255, 193, 7, 0.15);
     color: black !important;
 }
 
-.sidebar-menu .nav-link.active {
+.sidebar-menu > .nav-item > .nav-link.active {
     background-color: #ffc107 !important;
     color: black !important;
     font-weight: 600;

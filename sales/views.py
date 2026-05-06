@@ -12,43 +12,70 @@ from .forms import SaleForm
 def sales(request):
     sale_form = SaleForm()
 
-    if request.method == 'POST' and request.POST.get('action') == 'add_sale':
-        sale_form = SaleForm(request.POST)
-        if sale_form.is_valid():
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'delete_order':
+            order_id = request.POST.get('order_id')
             try:
+                order_to_delete = Order.objects.get(id=order_id)
+                order_number = order_to_delete.order_number
+
                 with transaction.atomic():
-                    product_data = sale_form.cleaned_data['product']
-                    quantity = sale_form.cleaned_data['quantity']
-
-                    product = Product.objects.select_for_update().get(id=product_data.id)
-
-                    if product.stock_quantity < quantity:
-                        sale_form.add_error('quantity', f'Insufficient stock. Only {product.stock_quantity} remaining.')
-                    else:
-                        new_order = Order.objects.create()
-
-                        new_sale = sale_form.save(commit=False)
-                        new_sale.order = new_order
-                        new_sale.save()
-
-                        product.stock_quantity -= quantity
+                    for sale_item in order_to_delete.sale_set.select_related('product').all():
+                        product = sale_item.product
+                        product.stock_quantity += sale_item.quantity
                         product.save(update_fields=['stock_quantity'])
+                    order_to_delete.delete()
 
-                        messages.success(request, f'Sale #{new_sale.id} completed successfully.')
-                        return redirect('sales')
-            except Exception as e:
-                messages.error(request, f"An error occurred: {str(e)}")
+                messages.success(request, f'Order {order_number} deleted successfully.')
+            except Order.DoesNotExist:
+                messages.error(request, 'Order not found.')
+            return redirect('sales')
+
+        if action == 'add_sale':
+            sale_form = SaleForm(request.POST)
+            if sale_form.is_valid():
+                try:
+                    with transaction.atomic():
+                        product_data = sale_form.cleaned_data['product']
+                        quantity = sale_form.cleaned_data['quantity']
+
+                        product = Product.objects.select_for_update().get(id=product_data.id)
+
+                        if product.stock_quantity < quantity:
+                            sale_form.add_error('quantity', f'Insufficient stock. Only {product.stock_quantity} remaining.')
+                        else:
+                            new_order = Order.objects.create()
+
+                            new_sale = sale_form.save(commit=False)
+                            new_sale.order = new_order
+                            new_sale.save()
+
+                            product.stock_quantity -= quantity
+                            product.save(update_fields=['stock_quantity'])
+
+                            messages.success(request, f'Sale #{new_sale.id} completed successfully.')
+                            return redirect('sales')
+                except Exception as e:
+                    messages.error(request, f"An error occurred: {str(e)}")
 
     order_id_filter = request.GET.get('orders')
     sales_qs = Sale.objects.select_related('order', 'product', 'product__category').order_by('-sale_date')
     selected_order_id = None
 
+    selected_order_number = None
     if order_id_filter:
         try:
             selected_order_id = int(order_id_filter)
-            sales_qs = sales_qs.filter(order_id=selected_order_id)
+            selected_order_number = Order.objects.filter(id=selected_order_id).values_list('order_number', flat=True).first()
+            if selected_order_number:
+                sales_qs = sales_qs.filter(order_id=selected_order_id)
+            else:
+                selected_order_id = None
         except (ValueError, TypeError):
             selected_order_id = None
+            selected_order_number = None
 
     sidebar_totals = sales_qs.aggregate(
         subtotal=Sum('total_price'),
@@ -69,6 +96,7 @@ def sales(request):
         'sales': sales_qs,
         'orders': recent_orders,
         'selected_order_id': selected_order_id,
+        'selected_order_number': selected_order_number,
         'total_sales_amount': overall_totals['total_sales_amount'] or 0,
         'total_items_sold': overall_totals['total_items_sold'] or 0,
         'subtotal': sidebar_totals['subtotal'] or 0,

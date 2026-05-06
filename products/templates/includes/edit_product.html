@@ -1,0 +1,102 @@
+{% for product in products %}
+<div class="modal fade" id="editProductModal{{ product.id }}" tabindex="-1" aria-labelledby="editProductModalLabel{{ product.id }}" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editProductModalLabel{{ product.id }}">Edit Product</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editProductForm{{ product.id }}" method="post" action="{% url 'product' %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="edit">
+          <input type="hidden" name="product_id" value="{{ product.id }}">
+
+          {% if open_edit_modal_id == product.id and edit_form %}
+            {% if edit_form.non_field_errors %}
+              <div class="alert alert-danger mb-3">
+                {% for error in edit_form.non_field_errors %}
+                  <div>{{ error }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endif %}
+
+          <div class="mb-3">
+            <label for="editProductCategory{{ product.id }}" class="form-label">Category</label>
+            <select id="editProductCategory{{ product.id }}" name="category" class="form-select bg-secondary-subtle">
+              {% for category in categories %}
+                <option value="{{ category.id }}" {% if open_edit_modal_id == product.id and request.POST.category == category.id|stringformat:"s" %}selected{% elif open_edit_modal_id != product.id and product.category.id == category.id %}selected{% endif %}>{{ category.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="editProductBrand{{ product.id }}" class="form-label">Brand</label>
+            <select id="editProductBrand{{ product.id }}" name="brand" class="form-select bg-secondary-subtle">
+              {% for brand in brands %}
+                <option value="{{ brand.id }}" {% if open_edit_modal_id == product.id and request.POST.brand == brand.id|stringformat:"s" %}selected{% elif open_edit_modal_id != product.id and product.brand.id == brand.id %}selected{% endif %}>{{ brand.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="editProductName{{ product.id }}" class="form-label">Product Name</label>
+            <input type="text" id="editProductName{{ product.id }}" name="name" class="form-control bg-secondary-subtle" value="{% if open_edit_modal_id == product.id %}{{ request.POST.name }}{% else %}{{ product.name }}{% endif %}">
+            {% if open_edit_modal_id == product.id and edit_form and edit_form.errors.name %}
+              <div class="text-danger small mt-1">{{ edit_form.errors.name|join:", " }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label for="editProductPrice{{ product.id }}" class="form-label">Price</label>
+            <input type="number" step="0.01" min="0" id="editProductPrice{{ product.id }}" name="price" class="form-control bg-secondary-subtle" value="{% if open_edit_modal_id == product.id %}{{ request.POST.price }}{% else %}{{ product.price }}{% endif %}">
+            {% if open_edit_modal_id == product.id and edit_form and edit_form.errors.price %}
+              <div class="text-danger small mt-1">{{ edit_form.errors.price|join:", " }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label for="editProductStock{{ product.id }}" class="form-label">Stock Quantity</label>
+            <input type="number" min="0" id="editProductStock{{ product.id }}" name="stock_quantity" class="form-control bg-secondary-subtle" value="{% if open_edit_modal_id == product.id %}{{ request.POST.stock_quantity }}{% else %}{{ product.stock_quantity }}{% endif %}">
+            {% if open_edit_modal_id == product.id and edit_form and edit_form.errors.stock_quantity %}
+              <div class="text-danger small mt-1">{{ edit_form.errors.stock_quantity|join:", " }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label for="editProductDiscount{{ product.id }}" class="form-label">Discount</label>
+            <input type="number" step="0.01" min="0" id="editProductDiscount{{ product.id }}" name="discount" class="form-control bg-secondary-subtle" value="{% if open_edit_modal_id == product.id %}{{ request.POST.discount }}{% else %}{{ product.discount }}{% endif %}">
+            {% if open_edit_modal_id == product.id and edit_form and edit_form.errors.discount %}
+              <div class="text-danger small mt-1">{{ edit_form.errors.discount|join:", " }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label for="editProductDescription{{ product.id }}" class="form-label">Description</label>
+            <textarea id="editProductDescription{{ product.id }}" name="description" rows="3" class="form-control bg-secondary-subtle">{% if open_edit_modal_id == product.id %}{{ request.POST.description }}{% else %}{{ product.description }}{% endif %}</textarea>
+            {% if open_edit_modal_id == product.id and edit_form and edit_form.errors.description %}
+              <div class="text-danger small mt-1">{{ edit_form.errors.description|join:", " }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label for="editProductImage{{ product.id }}" class="form-label">Image</label>
+            <input type="file" id="editProductImage{{ product.id }}" name="image" class="form-control bg-secondary-subtle">
+            {% if product.image %}
+              <div class="form-text mb-1">Current image: <a href="{{ product.image.url }}" target="_blank">view</a>. Leave blank to keep the current image.</div>
+            {% endif %}
+            {% if open_edit_modal_id == product.id and edit_form and edit_form.errors.image %}
+              <div class="text-danger small mt-1">{{ edit_form.errors.image|join:", " }}</div>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-warning fw-medium" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" form="editProductForm{{ product.id }}" class="btn btn-warning fw-medium">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}

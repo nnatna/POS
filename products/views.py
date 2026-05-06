@@ -6,12 +6,17 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from .models import Product
 from .forms import ProductForm
+from category.models import Category
+from brands.models import Brand
 
 
 # Create your views here.
 @login_required
 def product(request):
     form = ProductForm()
+    open_add_modal = False
+    open_edit_modal_id = None
+    edit_form = None
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -21,29 +26,51 @@ def product(request):
             product_id = request.POST.get('product_id')
             product_to_delete = get_object_or_404(Product, id=product_id)
             product_name = product_to_delete.name
-            
+
             try:
                 product_to_delete.delete()
                 messages.success(request, f'Product "{product_name}" deleted successfully.')
             except models.ProtectedError:
                 messages.error(request, f'Cannot delete "{product_name}" because it is linked to sales data.')
-            
+
             return redirect('product')
+
+        # EDIT Section
+        elif action == 'edit':
+            product_id = request.POST.get('product_id')
+            instance = get_object_or_404(Product, id=product_id)
+            edit_form = ProductForm(request.POST, request.FILES, instance=instance)
+
+            if edit_form.is_valid():
+                updated_product = edit_form.save()
+                messages.success(request, f'Product "{updated_product.name}" updated successfully.')
+                return redirect('product')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+                open_edit_modal_id = instance.id
 
         # ADD Section
-        form = ProductForm(request.POST, request.FILES)
-        if form.is_valid():
-            new_product = form.save()
-            messages.success(request, f'Product "{new_product.name}" added successfully.')
-            return redirect('product')
-        else:
-            messages.error(request, 'Please correct the errors below.')
+        elif action == 'add' or action is None:
+            form = ProductForm(request.POST, request.FILES)
+            if form.is_valid():
+                new_product = form.save()
+                messages.success(request, f'Product "{new_product.name}" added successfully.')
+                return redirect('product')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+                open_add_modal = True
 
     products = Product.objects.select_related('category', 'brand').all().order_by('-created_at')
-    
+    categories = Category.objects.all().order_by('name')
+    brands = Brand.objects.all().order_by('name')
+
     context = {
         'products': products,
         'form': form,
-        'open_add_modal': request.method == 'POST' and form.errors,
+        'categories': categories,
+        'brands': brands,
+        'open_add_modal': open_add_modal,
+        'open_edit_modal_id': open_edit_modal_id,
+        'edit_form': edit_form,
     }
     return render(request, 'product.html', context)

@@ -1,16 +1,16 @@
-<div class="d-flex flex-column h-100 bg-white shadow-sm">
+<div class="d-flex flex-column h-100 bg-white">
   <div class="p-4 border-bottom">
     {% if user.is_authenticated %}
       <small class="text-uppercase text-secondary d-block mb-1" style="font-size: 0.7rem; letter-spacing: 1px;">Logged in as</small>
       <h5 class="fw-bold mb-2">{{ user.get_full_name|default:user.username }}</h5>
       {% if user.is_staff or user.is_superuser %}
-        <span class="badge text-bg-danger rounded-pill px-3 py-2">
+        <span class="badge text-bg-danger-pill px-2 py-2">
           <i class="fa-solid fa-shield-halved me-1"></i> 
         {{ user.profile.position|default:"Staff" }}
         </span>
       {% else %}
-        <span class="badge text-bg-secondary rounded-pill px-3 py-2">
-          <i class="fa-solid fa-user"></i>
+        <span class="badge text-bg-secondary-pill px-2 py-2">
+          <i class="fa-solid fa-shield-halved me-1"></i>
         {{ user.profile.position|default:"Staff" }}
         </span>
       {% endif %}
@@ -19,42 +19,50 @@
 
   <ul class="nav nav-pills flex-column gap-1 p-3 sidebar-menu flex-grow-1" id="sidebarNav">
     <li class="nav-item">
-      <a href="{% url 'home' %}" class="nav-link rounded py-2 px-3">
+      <a href="{% url 'home' %}" class="nav-link py-2 px-3
+      {% if request.resolver_match.url_name == 'home' %} fw-medium bg-warning active{% endif %}">
         <i class="fa-solid fa-house me-2"></i>Home
       </a>
     </li>
     <li class="nav-item">
-      <a href="{% url 'dashboard' %}" class="nav-link rounded py-2 px-3">
+      <a href="{% url 'dashboard' %}" class="nav-link py-2 px-3
+      {% if request.resolver_match.url_name == 'dashboard' %} fw-medium bg-warning active{% endif %}">
         <i class="fa-solid fa-chart-line me-2"></i>Dashboard
       </a>
     </li>
     <li class="nav-item">
-      <a href="{% url 'product' %}" class="nav-link rounded py-2 px-3">
+      <a href="{% url 'product' %}" class="nav-link py-2 px-3
+      {% if request.resolver_match.url_name == 'product' %} fw-medium bg-warning active{% endif %}">
         <i class="fa-solid fa-box-archive me-2"></i>Product
       </a>
-    </li>
-    <li class="nav-item">
-      <a href="{% url 'brands' %}" class="nav-link rounded py-2 px-3">
-        <i class="fa-solid fa-font-awesome me-2"></i>Brand
+      </li>
+      <li class="nav-item">
+      <a href="{% url 'brands' %}" class="nav-link py-2 px-3
+      {% if request.resolver_match.url_name == 'brands' %} fw-medium bg-warning active{% endif %}">
+        <i class="fa-solid fa-tag me-2"></i>Brand
       </a>
     </li>
     <li class="nav-item">
-      <a href="{% url 'category' %}" class="nav-link rounded py-2 px-3">
+      <a href="{% url 'category' %}" class="nav-link py-2 px-3
+      {% if request.resolver_match.url_name == 'category' %} fw-medium bg-warning active{% endif %}">
         <i class="fa-solid fa-layer-group me-2"></i>Category
       </a>
     </li>
     <li class="nav-item">
-      <a href="{% url 'sales' %}" class="nav-link rounded py-2 px-3">
+      <a href="{% url 'sales' %}" class="nav-link py-2 px-3
+      {% if request.resolver_match.url_name == 'sales' %} fw-medium bg-warning active{% endif %}">
         <i class="fa-solid fa-cart-shopping me-2"></i>Sales
       </a>
     </li>
     <li class="nav-item">
-      <a href="{% url 'report' %}" class="nav-link rounded py-2 px-3">
+      <a href="{% url 'report' %}" class="nav-link py-2 px-3
+      {% if request.resolver_match.url_name == 'report' %} fw-medium bg-warning active{% endif %}">
         <i class="fa-solid fa-chart-column me-2"></i>Report
       </a>
     </li>
     <li class="nav-item">
-      <a href="{% url 'settings' %}" class="nav-link rounded py-2 px-3">
+      <a href="{% url 'settings' %}" class="nav-link py-2 px-3 
+      {% if request.path_info|slice:':9' == '/settings' %}fw-medium bg-warning active{% endif %}">
         <i class="fa-solid fa-gear me-2"></i>Settings
       </a>
     </li>

@@ -25,7 +25,7 @@
       {% csrf_token %}
 
       <div class="mb-4">
-        <label class="form-label" for="id_first_name">Full Name</label>
+        <label class="form-label text-muted fw-medium" for="id_first_name">Full Name</label>
         <input
           type="text"
           class="form-control {% if form.first_name.errors %}is-invalid{% endif %}"
@@ -41,7 +41,7 @@
 
       <div class="row g-3">
         <div class="col-12 col-md-6">
-          <label class="form-label" for="id_email">Email</label>
+          <label class="form-label text-muted fw-medium" for="id_email">Email</label>
           <input
             type="email"
             class="form-control {% if form.email.errors %}is-invalid{% endif %}"
@@ -56,7 +56,7 @@
         </div>
 
         <div class="col-12 col-md-6">
-          <label class="form-label" for="id_phone">Phone Number</label>
+          <label class="form-label text-muted fw-medium" for="id_phone">Phone Number</label>
           <input
             type="tel"
             class="form-control {% if form.phone.errors %}is-invalid{% endif %}"
@@ -71,31 +71,27 @@
         </div>
       </div>
 
-      <div class="row g-3 mt-3">
+<div class="row g-3 mt-3">
         <div class="col-12 col-md-6">
-          <label class="form-label" for="id_dob">Date of Birth</label>
+          <label class="form-label text-muted fw-medium" for="id_dob">Date of Birth</label>
           <input
             type="date"
             class="form-control {% if form.dob.errors %}is-invalid{% endif %}"
             id="id_dob"
             name="dob"
-            {% if form.dob.value %}value="{{ form.dob.value|date:'Y-m-d' }}"{% endif %}
-          />
-          {% if form.dob.errors %}
-            <div class="invalid-feedback">{{ form.dob.errors|join:", " }}</div>
-          {% endif %}
-        </div>
-
+            value="{% if form.dob.value %}{{ form.dob.value|date:'Y-m-d' }}{% endif %}"
+            />
+          </div>
         <div class="col-12 col-md-6">
-          <label class="form-label" for="id_position">Position</label>
-          <input
-            type="text"
+          <label class="form-label text-muted fw-medium" for="id_position">Position</label>
+          <select
             class="form-control {% if form.position.errors %}is-invalid{% endif %}"
             id="id_position"
             name="position"
-            value="{{ form.position.value|default:'' }}"
-            placeholder="e.g. Head Cashier"
-          />
+          >
+            <option value="Owner" {% if form.position.value == 'Owner' %}selected{% endif %}>Owner</option>
+            <option value="Staff" {% if form.position.value == 'Staff' %}selected{% endif %}>Staff</option>
+          </select>
           {% if form.position.errors %}
             <div class="invalid-feedback">{{ form.position.errors|join:", " }}</div>
           {% endif %}

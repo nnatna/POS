@@ -10,3 +10,11 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+class OpeningHours(models.Model):
+    day_of_week = models.CharField(max_length=10)
+    open_time = models.TimeField()
+    close_time = models.TimeField()
+
+    def __str__(self):
+        return f"{self.day_of_week}: {self.open_time} - {self.close_time}"

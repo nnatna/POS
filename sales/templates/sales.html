@@ -10,11 +10,45 @@
       <div>
         <h1 class="mb-0">Sales</h1>
         <p class="mb-0">Manage your sales here.</p>
+        {% if selected_order_id %}
+          <p class="mb-0 small text-muted">Selected order: <strong>{{ selected_order_number }}</strong></p>
+        {% endif %}
       </div>
-      {% if selected_order_id %}
-        <a href="{% url 'sales' %}" class="btn btn-sm btn-outline-secondary">Show all orders</a>
-      {% endif %}
+      <div class="d-flex align-items-center gap-2">
+        {% if selected_order_id %}
+          <button type="button" class="btn btn-sm btn-outline-danger" title="Delete Order" data-bs-toggle="modal" data-bs-target="#deleteOrderModal">
+            Delete Order
+          </button>
+          <a href="{% url 'sales' %}" class="btn btn-sm btn-outline-secondary">Show all orders</a>
+        {% endif %}
+      </div>
     </div>
+    {% if selected_order_id %}
+      <div class="modal fade" id="deleteOrderModal" tabindex="-1" aria-labelledby="deleteOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="deleteOrderModalLabel">Delete Order</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Delete order <strong>{{ selected_order_number }}</strong> and all its sale items?</p>
+              <p class="text-muted mb-0">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+              <form method="post" action="{% url 'sales' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete_order">
+                <input type="hidden" name="order_id" value="{{ selected_order_id }}">
+                <button type="submit" class="btn btn-danger">Delete Order</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
     {% block page_content %}
       <div class="product-list-scroll flex-grow-1 mt-3 overflow-y-auto" style="min-height: 0;">
         <div class="row g-3 mx-0" id="product-list">

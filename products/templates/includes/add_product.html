@@ -10,6 +10,7 @@
       <div class="modal-body">
         <form id="addProductForm" method="post" action="{% url 'product' %}" enctype="multipart/form-data">
           {% csrf_token %}
+          <input type="hidden" name="action" value="add">
           <div class="mb-3">
             <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
             {{ form.category }}

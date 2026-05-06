@@ -24,4 +24,7 @@ from . import views
 urlpatterns = [
     path('', views.settings, name='settings'),
     path('upload-avatar/', views.upload_avatar, name='upload_avatar'),
+    path('employees/', views.employees, name='settings_employees'),
+    path('hours/', views.opening_hours, name='settings_hours'),
+    path('password/', views.change_password, name='settings_password'),
 ]
