@@ -1,7 +1,7 @@
-<div class="category-filter-shell position-relative d-flex align-items-center p-2 w-100">
+<div class="category-filter-shell position-relative d-flex align-items-center p-2 border rounded bg-light w-100">
     <button type="button" 
             id="btnLeft"
-            class="btn btn-warning shadow-sm me-2 rounded-circle border-0" 
+            class="btn btn-sm btn-warning shadow-sm me-2 rounded-circle border-0" 
             onclick="scrollCategories(-200)" 
             style="z-index: 10; width: 40px; height: 40px; display: none;">
         <i class="fa-solid fa-chevron-left"></i>
@@ -9,11 +9,11 @@
 
     <div id="categoryScroll" class="category-filter d-flex flex-nowrap gap-2 overflow-auto">
         
-        <a href="{% url 'home' %}" class="btn fw-bold {% if selected_category == 'all' %}btn-warning{% else %}btn-outline-warning{% endif %} text-nowrap">All</a>
+        <a href="{% url 'home' %}{% if search_query %}?search={{ search_query|urlencode }}{% endif %}" class="btn btn-sm fw-bold {% if selected_category == 'all' %}btn-warning{% else %}btn-outline-warning{% endif %} text-nowrap">All</a>
 
         {% for Category in categories %}
-            <a href="{% url 'home' %}?category={{ Category.id }}" 
-               class="btn fw-bold {% if selected_category == Category.id|stringformat:'s' %}btn-warning{% else %}btn-outline-warning{% endif %} text-nowrap">
+            <a href="{% url 'home' %}?category={{ Category.id }}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" 
+               class="btn btn-sm fw-bold {% if selected_category == Category.id|stringformat:'s' %}btn-warning{% else %}btn-outline-warning{% endif %} text-nowrap">
                {{ Category.name }}
             </a>
         {% endfor %}
@@ -21,7 +21,7 @@
 
     <button type="button" 
             id="btnRight"
-            class="btn btn-warning shadow-sm ms-2 rounded-circle border-0" 
+            class="btn btn-sm btn-warning shadow-sm ms-2 rounded-circle border-0" 
             onclick="scrollCategories(200)" 
             style="z-index: 10; width: 40px; height: 40px;">
         <i class="fa-solid fa-chevron-right"></i>

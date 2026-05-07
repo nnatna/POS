@@ -4,6 +4,7 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
+from django.db.models import Q
 from .models import Product
 from .forms import ProductForm
 from category.models import Category
@@ -17,6 +18,7 @@ def product(request):
     open_add_modal = False
     open_edit_modal_id = None
     edit_form = None
+    search_query = request.GET.get('search', '').strip()
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -61,6 +63,10 @@ def product(request):
                 open_add_modal = True
 
     products = Product.objects.select_related('category', 'brand').all().order_by('-created_at')
+    if search_query:
+        products = products.filter(
+            Q(name__icontains=search_query)
+        )
     categories = Category.objects.all().order_by('name')
     brands = Brand.objects.all().order_by('name')
 
@@ -72,5 +78,6 @@ def product(request):
         'open_add_modal': open_add_modal,
         'open_edit_modal_id': open_edit_modal_id,
         'edit_form': edit_form,
+        'search_query': search_query,
     }
     return render(request, 'product.html', context)

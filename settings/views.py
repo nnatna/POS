@@ -9,11 +9,9 @@ from django.http import JsonResponse
 from .models import Profile, OpeningHours
 from .forms import PersonalInformationForm, EmployeeForm, OpeningHoursForm
 
-
 def user_is_owner(user):
     profile, _ = Profile.objects.get_or_create(user=user)
     return profile.position == 'Owner'
-
 
 @login_required
 def settings(request):

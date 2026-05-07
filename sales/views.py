@@ -1,9 +1,12 @@
+from datetime import timedelta
+
 from django.db import transaction
-from django.db.models import Sum
+from django.db.models import DecimalField, ExpressionWrapper, F, Max, Q, Sum
 from django.shortcuts import render, redirect
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils import timezone
 from products.models import Product
 from .models import Order, Sale
 from .forms import SaleForm
@@ -61,10 +64,27 @@ def sales(request):
                     messages.error(request, f"An error occurred: {str(e)}")
 
     order_id_filter = request.GET.get('orders')
+    date_filter = request.GET.get('date_filter', '').strip().lower()
+    search_query = request.GET.get('search', '').strip()
     sales_qs = Sale.objects.select_related('order', 'product', 'product__category').order_by('-sale_date')
     selected_order_id = None
-
     selected_order_number = None
+
+    today = timezone.localdate()
+    if date_filter == 'today':
+        sales_qs = sales_qs.filter(sale_date__date=today)
+    elif date_filter == 'week':
+        start_of_week = today - timedelta(days=today.weekday())
+        sales_qs = sales_qs.filter(sale_date__date__gte=start_of_week)
+    elif date_filter == 'month':
+        sales_qs = sales_qs.filter(sale_date__year=today.year, sale_date__month=today.month)
+    elif date_filter == 'year':
+        sales_qs = sales_qs.filter(sale_date__year=today.year)
+    elif date_filter == 'all':
+        pass
+    else:
+        date_filter = ''
+
     if order_id_filter:
         try:
             selected_order_id = int(order_id_filter)
@@ -77,18 +97,69 @@ def sales(request):
             selected_order_id = None
             selected_order_number = None
 
+    if search_query:
+        sales_qs = sales_qs.filter(
+            Q(order__order_number__icontains=search_query)
+        )
+
+    line_subtotal_expression = ExpressionWrapper(
+        F('product__price') * F('quantity'),
+        output_field=DecimalField(max_digits=12, decimal_places=2),
+    )
+
+    selected_order_sales = []
+    selected_order_payment_method = None
+    selected_order_sale_date = None
+    selected_order_discount = 0
+
+    if selected_order_id:
+        selected_order_sales = list(sales_qs)
+        if selected_order_sales:
+            first_sale = selected_order_sales[0]
+            selected_order_payment_method = first_sale.get_payment_method_display()
+            selected_order_sale_date = first_sale.sale_date
+            selected_order_discount = first_sale.discount or 0
+
     sidebar_totals = sales_qs.aggregate(
-        subtotal=Sum('total_price'),
+        subtotal=Sum(line_subtotal_expression),
+        final_total=Sum('total_amount'),
         total_items=Sum('quantity'),
+        discount_amount=Sum(
+            ExpressionWrapper(
+                line_subtotal_expression - F('total_amount'),
+                output_field=DecimalField(max_digits=12, decimal_places=2),
+            )
+        ),
     )
 
     recent_orders = Order.objects.annotate(
-        total_amount=Sum('sale__total_price'),
+        total_amount=Sum('sale__total_amount'),
         total_items=Sum('sale__quantity'),
-    ).order_by('-id')[:50]
+        latest_sale_date=Max('sale__sale_date'),
+    )
+
+    if date_filter == 'today':
+        recent_orders = recent_orders.filter(sale__sale_date__date=today)
+    elif date_filter == 'week':
+        start_of_week = today - timedelta(days=today.weekday())
+        recent_orders = recent_orders.filter(sale__sale_date__date__gte=start_of_week)
+    elif date_filter == 'month':
+        recent_orders = recent_orders.filter(sale__sale_date__year=today.year, sale__sale_date__month=today.month)
+    elif date_filter == 'year':
+        recent_orders = recent_orders.filter(sale__sale_date__year=today.year)
+
+    if search_query:
+        recent_orders = recent_orders.filter(
+            Q(order_number__icontains=search_query)
+            | Q(sale__product__name__icontains=search_query)
+            | Q(sale__product__brand__name__icontains=search_query)
+            | Q(sale__product__category__name__icontains=search_query)
+        )
+
+    recent_orders = recent_orders.distinct().order_by('-id')[:50]
 
     overall_totals = Sale.objects.aggregate(
-        total_sales_amount=Sum('total_price'),
+        total_sales_amount=Sum('total_amount'),
         total_items_sold=Sum('quantity'),
     )
 
@@ -97,9 +168,17 @@ def sales(request):
         'orders': recent_orders,
         'selected_order_id': selected_order_id,
         'selected_order_number': selected_order_number,
+        'selected_order_sales': selected_order_sales,
+        'selected_order_payment_method': selected_order_payment_method,
+        'selected_order_sale_date': selected_order_sale_date,
+        'selected_order_discount': selected_order_discount,
+        'date_filter': date_filter,
+        'search_query': search_query,
         'total_sales_amount': overall_totals['total_sales_amount'] or 0,
         'total_items_sold': overall_totals['total_items_sold'] or 0,
         'subtotal': sidebar_totals['subtotal'] or 0,
+        'discount_amount': sidebar_totals['discount_amount'] or 0,
+        'final_total': sidebar_totals['final_total'] or 0,
         'total_items': sidebar_totals['total_items'] or 0,
         'sale_form': sale_form,
         'open_add_sale_modal': bool(sale_form.errors),

@@ -1,4 +1,4 @@
-from django.db.models import F
+from django.db.models import F, Q
 from sales.forms import SaleForm
 from sales.models import Sale, Order
 from products.models import Product
@@ -18,16 +18,22 @@ import json
 @login_required
 def home(request):
     category_id = request.GET.get('category')
+    search_query = request.GET.get('search', '').strip()
     if category_id and category_id != 'all':
         products = Product.objects.filter(category_id=category_id)
     else:
         products = Product.objects.all()
 
+    if search_query:
+        products = products.filter(
+            Q(name__icontains=search_query)
+        )
+
     categories = Category.objects.all()
     recent_sales = Sale.objects.select_related('order', 'product', 'product__category').order_by('-sale_date')[:5]
     recent_orders = Order.objects.order_by('-id')[:5]
     sales_totals = Sale.objects.aggregate(
-        total_sales_amount=Sum('total_price'),
+        total_sales_amount=Sum('total_amount'),
         total_items_sold=Sum('quantity'),
     )
 
@@ -39,6 +45,7 @@ def home(request):
         'total_sales_amount': sales_totals['total_sales_amount'] or 0,
         'total_items_sold': sales_totals['total_items_sold'] or 0,
         'selected_category': category_id or 'all',
+        'search_query': search_query,
     }
     return render(request, 'home.html', context)
 
@@ -125,7 +132,7 @@ def _create_checkout_order(payload):
             order=new_order,
             product=product,
             quantity=quantity,
-            total_price=Decimal('0.00'),
+            total_amount=Decimal('0.00'),
             discount=discount,
             payment_method=payment_method,
         )
@@ -134,7 +141,7 @@ def _create_checkout_order(payload):
         product.stock_quantity -= quantity
         product.save(update_fields=['stock_quantity'])
 
-        total_amount += sale.total_price
+        total_amount += sale.total_amount
         total_items += quantity
 
     return JsonResponse({

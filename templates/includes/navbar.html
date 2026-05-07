@@ -1,19 +1,70 @@
 <nav class="top-navbar navbar navbar-expand-lg navbar-light bg-white p-3">
-    <div class="container-fluid px-4">
-        <a class="navbar-brand fw-bold text-dark" href="#">POS SYSTEM</a>
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold text-dark" href="#">POS SYSTEM</a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
 
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <div class="ms-auto d-flex align-items-center">
-                <div class="search-container position-relative">
-                    <input type="text" class="form-control bg-secondary-subtle rounded-pill ps-4 search-input" 
-                    placeholder="Search products..." style="width: 300px;">
-                    <i class="fa-solid fa-magnifying-glass position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></i>
-                </div>
-            </div>
-        </div>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <div class="ms-auto d-flex align-items-center">
+        {% if request.resolver_match.url_name == 'sales' %}
+          <form method="get" action="{% url 'sales' %}" class="search-container position-relative">
+            {% if selected_order_id %}
+              <input type="hidden" name="orders" value="{{ selected_order_id }}" />
+            {% endif %}
+            {% if date_filter %}
+              <input type="hidden" name="date_filter" value="{{ date_filter }}" />
+            {% endif %}
+            <input type="search" name="search" value="{{ search_query }}" class="form-control bg-secondary-subtle rounded-pill ps-4 pe-5 search-input" placeholder="Search sales..." style="width: 300px;" />
+            <button type="submit" class="btn border-0 bg-transparent position-absolute top-50 end-0 translate-middle-y me-2 p-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></button>
+          </form>
+        {% elif request.resolver_match.url_name == 'home' %}
+          <form method="get" action="{% url 'home' %}" class="search-container position-relative">
+            {% if selected_category and selected_category != 'all' %}
+              <input type="hidden" name="category" value="{{ selected_category }}" />
+            {% endif %}
+            <input type="search" name="search" value="{{ search_query }}" class="form-control bg-secondary-subtle rounded-pill ps-4 pe-5 search-input" placeholder="Search products..." style="width: 300px;" />
+            <button type="submit" class="btn border-0 bg-transparent position-absolute top-50 end-0 translate-middle-y me-2 p-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></button>
+          </form>
+        {% elif request.resolver_match.url_name == 'product' %}
+          <form method="get" action="{% url 'product' %}" class="search-container position-relative">
+            <input type="search" name="search" value="{{ search_query }}" class="form-control bg-secondary-subtle rounded-pill ps-4 pe-5 search-input" placeholder="Search products..." style="width: 300px;" />
+            <button type="submit" class="btn border-0 bg-transparent position-absolute top-50 end-0 translate-middle-y me-2 p-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></button>
+          </form>
+        {% elif request.resolver_match.url_name == 'brands' %}
+          <form method="get" action="{% url 'brands' %}" class="search-container position-relative">
+            <input type="search" name="search" value="{{ search_query }}" class="form-control bg-secondary-subtle rounded-pill ps-4 pe-5 search-input" placeholder="Search brands..." style="width: 300px;" />
+            <button type="submit" class="btn border-0 bg-transparent position-absolute top-50 end-0 translate-middle-y me-2 p-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></button>
+          </form>
+        {% elif request.resolver_match.url_name == 'category' %}
+          <form method="get" action="{% url 'category' %}" class="search-container position-relative">
+            <input type="search" name="search" value="{{ search_query }}" class="form-control bg-secondary-subtle rounded-pill ps-4 pe-5 search-input" placeholder="Search categories..." style="width: 300px;" />
+            <button type="submit" class="btn border-0 bg-transparent position-absolute top-50 end-0 translate-middle-y me-2 p-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></button>
+          </form>
+        {% endif %}
+      </div>
+      {% if request.resolver_match.url_name != 'settings' %}
+        <a href="{% url 'settings' %}" class="d-flex align-items-center ms-2" title="Account settings">
+          {% if user.is_authenticated %}
+            {% with display_name=user.get_full_name|default:user.username %}
+              <img
+                src="{% if user_profile and user_profile.avatar %}{{ user_profile.avatar.url }}{% else %}https://ui-avatars.com/api/?name={{ display_name|urlencode }}&background=F97316&color=fff&size=128{% endif %}"
+                alt="{{ display_name }}"
+                id="navbar-avatar-img"
+                class="rounded-circle border border-2 border-secondary"
+                width="48"
+                height="48" />
+            {% endwith %}
+          {% else %}
+            <img
+              src="https://ui-avatars.com/api/?name=Guest&background=F97316&color=fff&size=128"
+              alt="Guest"
+              id="navbar-avatar-img"
+              class="rounded-circle border border-2 border-secondary"
+              width="40"
+              height="40" />
+          {% endif %}
+        </a>
+      {% endif %}
     </div>
+  </div>
 </nav>

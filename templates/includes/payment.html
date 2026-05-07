@@ -19,7 +19,8 @@
                     <label class="btn btn-outline-warning w-50 fw-medium" for="cash">Cash</label>
 
                 </div>
-                <div class="d-flex justify-content-between mb-3">
+                <div class="mb-3">
+                    <label for="checkout-discount" class="form-label fw-medium">Discount (%)</label>
                     <input
                         type="number"
                         min="0"
@@ -41,8 +42,12 @@
                         <span>Discount:</span>
                         <span id="checkout-discount-amount">-$0.00</span>
                     </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Total Item:</span>
+                        <span id="checkout-item">0</span>
+                    </div>
                     <div class="d-flex justify-content-between total">
-                        <span>Total:</span>
+                        <span>Total Amount:</span>
                         <span id="checkout-total">$0.00</span>
                     </div>
                 </div>

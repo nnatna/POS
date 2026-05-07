@@ -10,6 +10,7 @@ def brands(request):
     add_form = BrandForm()
     open_add_modal = False
     open_edit_modal_id = None
+    search_query = request.GET.get('search', '').strip()
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -49,10 +50,13 @@ def brands(request):
             return redirect('brands')
 
     brands_list = Brand.objects.all().order_by('name')
+    if search_query:
+        brands_list = brands_list.filter(name__icontains=search_query)
     context = {
         'brands': brands_list,
         'add_form': add_form,
         'open_add_modal': open_add_modal,
         'open_edit_modal_id': open_edit_modal_id,
+        'search_query': search_query,
     }
     return render(request, 'brand.html', context)

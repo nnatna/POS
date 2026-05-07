@@ -10,6 +10,7 @@ def category(request):
     add_form = CategoryForm()
     open_add_modal = False
     open_edit_modal_id = None
+    search_query = request.GET.get('search', '').strip()
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -54,11 +55,14 @@ def category(request):
             return redirect('category')
 
     categories = Category.objects.all().order_by('name')
+    if search_query:
+        categories = categories.filter(name__icontains=search_query)
     
     context = {
         'categories': categories,
         'add_form': add_form,
         'open_add_modal': open_add_modal,
         'open_edit_modal_id': open_edit_modal_id,
+        'search_query': search_query,
     }
     return render(request, 'category.html', context)

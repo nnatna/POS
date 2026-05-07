@@ -9,6 +9,7 @@ document.addEventListener('click', function(e) {
             id: btn.dataset.id,
             name: btn.dataset.name,
             price: parseFloat(btn.dataset.price),
+            discount: parseFloat(btn.dataset.discount) || 0,
             image: btn.dataset.image,
             qty: 1
         };
@@ -32,28 +33,36 @@ function addToCart(product) {
 function renderCart() {
     const container = document.getElementById('order-items');
     const subtotalDisplay = document.getElementById('cart-total');
+    const discountDisplay = document.getElementById('discount-value');
     const totalItemsDisplay = document.getElementById('total-items-value');
     const totalDisplay = document.getElementById('total-value');
 
-    if (!container || !subtotalDisplay || !totalItemsDisplay || !totalDisplay) {
+    if (!container || !subtotalDisplay || !discountDisplay || !totalItemsDisplay || !totalDisplay) {
         return;
     }
 
     if (cart.length === 0) {
         container.innerHTML = '<p class="text-muted text-center mt-3 small">No items yet</p>';
         subtotalDisplay.innerText = '$0.00';
+        discountDisplay.innerText = '$0.00';
         totalDisplay.innerText = '$0.00';
         totalItemsDisplay.innerText = '0';
+        updateModalSummary();
         return;
     }
 
     container.innerHTML = '';
     let subtotal = 0;
+    let productDiscountTotal = 0;
     let totalQty = 0;
 
     cart.forEach((item, index) => {
         const itemTotal = item.price * item.qty;
+        const itemDiscountPercent = Number(item.discount) || 0;
+        const itemDiscount = itemTotal * itemDiscountPercent / 100;
+        const itemNetTotal = itemTotal - itemDiscount;
         subtotal += itemTotal;
+        productDiscountTotal += itemDiscount;
         totalQty += item.qty;
 
         container.innerHTML += `
@@ -66,16 +75,19 @@ function renderCart() {
                 }
             <div style="flex:1; min-width:0;">
                     <div class="fw-semibold small text-truncate">${item.name}</div>
-                    <div class="text-danger small">$${item.price.toFixed(2)}</div>
+                    <div class="text-danger fw-medium small">
+                        $${itemNetTotal.toFixed(2)}
+                        ${itemDiscountPercent > 0 ? `<span class="text-muted">(${itemDiscountPercent.toFixed(2)}% off)</span>` : ''}
+                    </div>
                 </div>
-                <div class="d-flex align-items-center gap-1 ms-2">
-                    <button class="cart-decrease-btn btn btn-sm btn-outline-secondary rounded-circle"
+                <div class="d-flex justify-content-end align-items-center gap-1 ms-2">
+                    <button class="cart-decrease-btn btn btn-sm bg-light shadow-sm rounded-circle"
                             type="button"
                             data-qty-index="${index}">
                                 <i class="fa-solid fa-minus"></i>
                             </button>
                     <span class="px-1 fw-bold">${item.qty}</span>
-                    <button class="cart-increase-btn btn btn-sm btn-outline-secondary rounded-circle"
+                    <button class="cart-increase-btn btn btn-sm bg-light shadow-sm rounded-circle"
                             type="button"
                             data-qty-index="${index}">
                                 <i class="fa-solid fa-plus"></i>
@@ -91,8 +103,10 @@ function renderCart() {
     });
 
     subtotalDisplay.innerText = `$${subtotal.toFixed(2)}`;
-    totalDisplay.innerText = `$${subtotal.toFixed(2)}`;
+    discountDisplay.innerText = productDiscountTotal > 0 ? `-$${productDiscountTotal.toFixed(2)}` : '$0.00';
+    totalDisplay.innerText = `$${(subtotal - productDiscountTotal).toFixed(2)}`;
     totalItemsDisplay.innerText = totalQty;
+    updateModalSummary();
 }
 
 function removeItem(index) {
@@ -225,27 +239,35 @@ if (confirmCheckoutBtn) {
 }
 
 function updateModalSummary() {
-    const cartTotalEl = document.getElementById('cart-total');
     const checkoutSubtotalEl = document.getElementById('checkout-subtotal');
     const checkoutDiscountAmountEl = document.getElementById('checkout-discount-amount');
+    const checkoutItemEl = document.getElementById('checkout-item');
     const checkoutTotalEl = document.getElementById('checkout-total');
     const discountValueEl = document.getElementById('discount-value');
     const totalValueEl = document.getElementById('total-value');
     const discountInput = document.getElementById('checkout-discount');
 
-    if (!cartTotalEl || !checkoutSubtotalEl || !checkoutDiscountAmountEl || !checkoutTotalEl || !discountValueEl || !totalValueEl || !discountInput) {
+    if (!checkoutSubtotalEl || !checkoutDiscountAmountEl || !checkoutItemEl || !checkoutTotalEl || !discountValueEl || !totalValueEl || !discountInput) {
         return;
     }
 
-    const subtotal = parseFloat(cartTotalEl.innerText.replace('$', '')) || 0;
-    const discountPercent = parseFloat(discountInput.value) || 0;
-    const discountAmount = (subtotal * discountPercent) / 100;
-    const finalTotal = subtotal - discountAmount;
+    const subtotal = cart.reduce((sum, item) => sum + (Number(item.price) || 0) * item.qty, 0);
+    const totalItems = cart.reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
+    const productDiscountAmount = cart.reduce((sum, item) => {
+        const itemSubtotal = (Number(item.price) || 0) * item.qty;
+        return sum + itemSubtotal * ((Number(item.discount) || 0) / 100);
+    }, 0);
+    const afterProductDiscount = subtotal - productDiscountAmount;
+    const checkoutDiscountPercent = parseFloat(discountInput.value) || 0;
+    const checkoutDiscountAmount = (afterProductDiscount * checkoutDiscountPercent) / 100;
+    const totalDiscountAmount = productDiscountAmount + checkoutDiscountAmount;
+    const finalTotal = afterProductDiscount - checkoutDiscountAmount;
 
     checkoutSubtotalEl.innerText = `$${subtotal.toFixed(2)}`;
-    checkoutDiscountAmountEl.innerText = `-$${discountAmount.toFixed(2)}`;
+    checkoutDiscountAmountEl.innerText = totalDiscountAmount > 0 ? `-$${totalDiscountAmount.toFixed(2)}` : '-$0.00';
+    checkoutItemEl.innerText = totalItems;
     checkoutTotalEl.innerText = `$${finalTotal.toFixed(2)}`;
-    discountValueEl.innerText = `-$${discountAmount.toFixed(2)}`;
+    discountValueEl.innerText = totalDiscountAmount > 0 ? `-$${totalDiscountAmount.toFixed(2)}` : '$0.00';
     totalValueEl.innerText = `$${finalTotal.toFixed(2)}`;
 }
 

@@ -8,9 +8,17 @@
 {% if messages %}
   {% for message in messages %}
     {% if 'success' in message.tags %}
-      <div class="alert alert-success" role="alert">✓ {{ message }}</div>
+      <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>{{ message }}</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
     {% else %}
-      <div class="alert alert-danger" role="alert">✕ {{ message }}</div>
+      <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>{{ message }}</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
     {% endif %}
   {% endfor %}
 {% endif %}

@@ -3,7 +3,7 @@
     {% if user.is_authenticated %}
       <small class="text-uppercase text-secondary d-block mb-1" style="font-size: 0.7rem; letter-spacing: 1px;">Logged in as</small>
       <h5 class="fw-bold mb-2">{{ user.get_full_name|default:user.username }}</h5>
-      <span class="badge py-2 px-1 {% if user.is_staff or user.is_superuser %}bg-danger {% else %}bg-info {% endif %}bg-opacity-75">
+      <span class="badge py-2 px-1 {% if user.is_staff or user.is_superuser %}bg-danger {% else %}bg-success {% endif %}bg-opacity-75">
         <i class="fa-solid fa-shield-halved"></i>
         {{ user_profile.position|default:"Staff" }}
       </span>

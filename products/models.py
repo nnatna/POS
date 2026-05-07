@@ -30,7 +30,8 @@ class Product(models.Model):
         if self.discount > 0:
             multiplier = Decimal('1') - (self.discount / Decimal('100'))
             return (self.price * multiplier).quantize(Decimal('0.01'))
-        return self.price
+        else:  
+            return self.price
 
     def __str__(self):
         return self.name

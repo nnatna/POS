@@ -3,11 +3,17 @@
 {% block title %}Brands{% endblock %}
 
 {% block content %}
-<section class="d-flex flex-column h-100 px-3 py-3 overflow-hidden">
+<section class="d-flex flex-column h-100 px-3 py-3 overflow-hidden brands-page">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-shrink-0">
         <div>
             <h1 class="mb-0">Brands</h1>
-            <p class="mb-0 text-muted">Manage your brands here.</p>
+            <p class="mb-0 text-muted">
+                {% if search_query %}
+                    Search results for "{{ search_query }}"
+                {% else %}
+                    Manage your brands here.
+                {% endif %}
+            </p>
         </div>
         <button type="button" class="btn btn-warning fw-medium" data-bs-toggle="modal" data-bs-target="#addBrandModal">
             Add New Brand
@@ -17,7 +23,7 @@
     <div class="product-list-scroll flex-grow-1">
         <div class="row g-2 mx-0 gap-2" id="brand-list">
             {% for brand in brands %}
-                <div class="card col-12 col-md-6">
+                <div class="card brand-item col-12 col-md-6" data-brand-name="{{ brand.name|lower }}">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-body d-flex justify-content-between align-items-center">
                             <div>
@@ -26,10 +32,10 @@
                                 <p class="text-muted small mb-0">{{ brand.description|default:'No description' }}</p>
                             </div>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-outline-warning btn-sm rounded-circle" data-bs-toggle="modal" data-bs-target="#editBrandModal{{ brand.id }}">
+                                <button type="button" class="btn btn-outline-warning btn-sm rounded-circle product-card-action" data-bs-toggle="modal" data-bs-target="#editBrandModal{{ brand.id }}">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
-                                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle" data-bs-toggle="modal" data-bs-target="#deleteBrandModal{{ brand.id }}">
+                                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle product-card-action d-inline-flex align-items-center justify-content-center flex-shrink-0 border-2" data-bs-toggle="modal" data-bs-target="#deleteBrandModal{{ brand.id }}">
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </div>
@@ -37,7 +43,7 @@
                     </div>
                 </div>
             {% empty %}
-                <div class="col-12">
+                <div id="brand-server-empty" class="col-12">
                     <div class="card border-0 shadow-sm">
                         <div class="card-body text-center text-muted py-5">
                             No brands found.
@@ -45,6 +51,13 @@
                     </div>
                 </div>
             {% endfor %}
+        </div>
+        <div id="brand-live-empty" class="col-12 d-none">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center text-muted py-5">
+                    No brands found.
+                </div>
+            </div>
         </div>
     </div>
 

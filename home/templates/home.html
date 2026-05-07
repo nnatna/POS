@@ -4,20 +4,27 @@
 
 {% block content %}
 <section class="home-content d-flex flex-column h-100 w-100 p-4 overflow-hidden">
-    <div class="flex-shrink-0">
+    <div class="flex-shrink-0 mb-3">
         {% include 'includes/category_filter.html' %}
     </div>
 
     {% block page_content %}
-    <div class="product-list-scroll flex-grow-1 mt-3">
+    <div class="product-list-scroll flex-grow-1">
         <div class="row g-3 mx-0" id="product-list">
             {% for product in products %}
                 {% include 'includes/list_product_card.html' %}
             {% empty %}
                 <div class="col-12 p-4 text-muted">
-                    No products available.
+                    {% if search_query %}
+                        No products found for "{{ search_query }}".
+                    {% else %}
+                        No products available.
+                    {% endif %}
                 </div>
             {% endfor %}
+        </div>
+        <div id="product-search-empty" class="col-12 p-4 text-muted d-none">
+            No products found.
         </div>
     </div>
     {% endblock page_content %}

@@ -41,10 +41,10 @@
     {% block script %}
       <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
       <script src="{% static 'fontawesome/js/all.min.js' %}"></script>
-      <script src="{% static 'javascripts/card.js' %}"></script>
-      <script src="{% static 'javascripts/include.js' %}"></script>
-      <script src="{% static 'javascripts/filter.js' %}"></script>
-      <script src="{% static 'javascripts/sales.js' %}"></script>
+      <script src="{% static 'javascripts/card.js' %}?t={% now 'U' %}"></script>
+      <script src="{% static 'javascripts/include.js' %}?t={% now 'U' %}"></script>
+      <script src="{% static 'javascripts/filter.js' %}?t={% now 'U' %}"></script>
+      <script src="{% static 'javascripts/sales.js' %}?t={% now 'U' %}"></script>
       <script src="{% static 'javascripts/process_checkout.js' %}?t={% now 'U' %}"></script>
       <script>
         console.log('Js is running!')

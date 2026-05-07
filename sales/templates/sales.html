@@ -5,22 +5,49 @@
 {% endblock %}
 
 {% block content %}
-  <section class="home-content d-flex flex-column h-100 w-100 p-4 overflow-hidden">
-    <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+  <section class="home-content sales-page d-flex flex-column h-100 w-100 p-4 overflow-hidden">
+    <div class="d-flex justify-content-between align-content-center gap-3 mb-3">
       <div>
         <h1 class="mb-0">Sales</h1>
         <p class="mb-0">Manage your sales here.</p>
-        {% if selected_order_id %}
-          <p class="mb-0 small text-muted">Selected order: <strong>{{ selected_order_number }}</strong></p>
-        {% endif %}
       </div>
-      <div class="d-flex align-items-center gap-2">
-        {% if selected_order_id %}
-          <button type="button" class="btn btn-sm btn-outline-danger" title="Delete Order" data-bs-toggle="modal" data-bs-target="#deleteOrderModal">
-            Delete Order
-          </button>
-          <a href="{% url 'sales' %}" class="btn btn-sm btn-outline-secondary">Show all orders</a>
+      <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+        {% if selected_order_id or date_filter %}
+          <div class="d-flex align-items-center gap-2 bg-light p-2 border rounded">
+            {% if selected_order_id %}
+              <button type="button" class="btn btn-sm fw-medium btn-outline-danger" title="Delete Order" data-bs-toggle="modal" data-bs-target="#deleteOrderModal">Delete Order</button>
+            {% endif %}
+            {% if date_filter and not selected_order_id %}
+              <a href="{% url 'sales' %}{% if search_query %}?search={{ search_query|urlencode }}{% endif %}" class="btn btn-sm fw-medium btn-outline-secondary">Clear date filter</a>
+            {% endif %}
+          </div>
+        {% elif search_query %}
+          <div class="d-flex align-items-center gap-2 bg-light p-2 border rounded">
+            <a href="{% url 'sales' %}{% if date_filter %}?date_filter={{ date_filter }}{% endif %}" class="btn btn-sm fw-medium btn-outline-secondary">Clear search</a>
+          </div>
         {% endif %}
+        <div class="d-flex align-items-center gap-2 bg-light p-2 border rounded" role="group" aria-label="Date filters">
+          <a href="{% url 'sales' %}?date_filter=today{% if selected_order_id %}&orders={{ selected_order_id }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}"
+             class="btn btn-sm fw-medium {% if date_filter == 'today' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">
+            Today
+          </a>
+          <a href="{% url 'sales' %}?date_filter=week{% if selected_order_id %}&orders={{ selected_order_id }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}"
+             class="btn btn-sm fw-medium {% if date_filter == 'week' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">
+            Week
+          </a>
+          <a href="{% url 'sales' %}?date_filter=month{% if selected_order_id %}&orders={{ selected_order_id }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}"
+             class="btn btn-sm fw-medium {% if date_filter == 'month' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">
+            Month
+          </a>
+          <a href="{% url 'sales' %}?date_filter=year{% if selected_order_id %}&orders={{ selected_order_id }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}"
+             class="btn btn-sm fw-medium {% if date_filter == 'year' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">
+            Year
+          </a>
+          <a href="{% url 'sales' %}?date_filter=all{% if selected_order_id %}&orders={{ selected_order_id }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}"
+             class="btn btn-sm fw-medium {% if date_filter == 'all' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">
+            All
+          </a>
+        </div>
       </div>
     </div>
     {% if selected_order_id %}
@@ -32,15 +59,17 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <p>Delete order <strong>{{ selected_order_number }}</strong> and all its sale items?</p>
+              <p>
+                Delete order <strong>{{ selected_order_number }}</strong> and all its sale items?
+              </p>
               <p class="text-muted mb-0">This action cannot be undone.</p>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
               <form method="post" action="{% url 'sales' %}">
                 {% csrf_token %}
-                <input type="hidden" name="action" value="delete_order">
-                <input type="hidden" name="order_id" value="{{ selected_order_id }}">
+                <input type="hidden" name="action" value="delete_order" />
+                <input type="hidden" name="order_id" value="{{ selected_order_id }}" />
                 <button type="submit" class="btn btn-danger">Delete Order</button>
               </form>
             </div>
@@ -58,6 +87,7 @@
             <div class="col-12 p-4 text-muted text-center">No orders available.</div>
           {% endfor %}
         </div>
+        <div id="sales-order-live-empty" class="col-12 p-4 text-muted text-center d-none">No orders found.</div>
       </div>
     {% endblock %}
   </section>

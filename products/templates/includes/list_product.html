@@ -12,8 +12,9 @@
       <th class="text-center pe-4">Action</th>
     </tr>
   </thead>
+  <tbody id="product-table-body">
     {% for product in products %}
-      <tr>
+      <tr class="product-table-row" data-product-name="{{ product.name|lower }}">
         <td class="text-center">{{ forloop.counter }}</td>
         <td>
           <div class="d-flex align-items-center">
@@ -41,26 +42,38 @@
         </td>
         <td class="text-center text-muted fw-medium">{{ product.procode }}</td>
         <td class="text-center">{{ product.stock_quantity }}</td>
-        <td class="text-center">${{ product.price|floatformat:2 }}</td>
+        <td class="text-center">
+          {% if product.discount > 0 %}
+            <span class="fw-semibold text-danger">${{ product.discounted_price|floatformat:2 }}</span>
+            <div class="small text-muted text-decoration-line-through">${{ product.price|floatformat:2 }}</div>
+          {% else %}
+            ${{ product.price|floatformat:2 }}
+          {% endif %}
+        </td>
         <td class="text-center d-flex justify-content-center align-items-center gap-2 p-4">
-          <button type="button" class="btn btn-success rounded-circle add-to-cart" title="Add to order"
+          <button type="button" class="btn btn-outline-success rounded-circle add-to-cart product-card-action d-inline-flex align-items-center justify-content-center flex-shrink-0 border-2" title="Add to order"
                   data-id="{{ product.id }}"
                   data-name="{{ product.name }}"
                   data-price="{{ product.price }}"
+                  data-discount="{{ product.discount }}"
                   data-image="{% if product.image %}{{ product.image.url }}{% endif %}">
             <i class="fa-solid fa-cart-plus"></i>
           </button>
-          <button type="button" class="btn btn-outline-warning rounded-circle" data-bs-toggle="modal" data-bs-target="#editProductModal{{ product.id }}" title="Edit product">
+          <button type="button" class="btn btn-outline-warning rounded-circle product-card-action d-inline-flex align-items-center justify-content-center flex-shrink-0 border-2" data-bs-toggle="modal" data-bs-target="#editProductModal{{ product.id }}" title="Edit product">
             <i class="fa-solid fa-pen-to-square"></i>
           </button>
-          <button type="button" class="btn btn-outline-danger rounded-circle" title="Delete product" data-bs-toggle="modal" data-bs-target="#deleteProductModal{{ product.id }}">
+          <button type="button" class="btn btn-outline-danger rounded-circle product-card-action d-inline-flex align-items-center justify-content-center flex-shrink-0 border-2" title="Delete product" data-bs-toggle="modal" data-bs-target="#deleteProductModal{{ product.id }}">
             <i class="fa-solid fa-trash-can"></i>
           </button>
         </td>
       </tr>
     {% empty %}
-      <tr>
-        <td colspan="7" class="text-center text-muted py-4">No products found.</td>
+      <tr id="product-table-server-empty">
+        <td colspan="9" class="text-center text-muted py-4">No products found.</td>
       </tr>
     {% endfor %}
+    <tr id="product-table-live-empty" class="d-none">
+      <td colspan="9" class="text-center text-muted py-4">No products found.</td>
+    </tr>
+  </tbody>
 </table>

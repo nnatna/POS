@@ -83,7 +83,7 @@
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          document.querySelectorAll('#avatar-img').forEach((img) => {
+          document.querySelectorAll('#avatar-img, #navbar-avatar-img').forEach((img) => {
             img.src = data.avatar_url + '?t=' + new Date().getTime()
           })
         } else {
