@@ -4,12 +4,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>POS</title>
+    <title>{% block title %}POS{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
     <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="{% static 'styles/include.css' %}?t={% now 'U' %}" />
     <link rel="stylesheet" href="{% static 'styles/home.css' %}?t={% now 'U' %}" />
+    <link rel="stylesheet" href="{% static 'styles/dashboard.css' %}?t={% now 'U' %}" />
   </head>
 
   <body>
@@ -46,6 +47,7 @@
       <script src="{% static 'javascripts/filter.js' %}?t={% now 'U' %}"></script>
       <script src="{% static 'javascripts/sales.js' %}?t={% now 'U' %}"></script>
       <script src="{% static 'javascripts/process_checkout.js' %}?t={% now 'U' %}"></script>
+      <script src="{% static 'javascripts/dashhoard.js' %}?t={% now 'U' %}"></script>
       <script>
         console.log('Js is running!')
       </script>

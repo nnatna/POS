@@ -1,258 +1,303 @@
 {% extends 'base.html' %}
 
-{% block title %}Report{% endblock %}
+{% block title %}
+  Report
+{% endblock %}
 
 {% block content %}
-<section class="home-content d-flex flex-column h-100 w-100 p-4 overflow-hidden">
+  <section class="home-content d-flex flex-column h-100 w-100 p-4 overflow-hidden">
     <div class="d-flex justify-content-between align-items-start gap-3 mb-3 flex-wrap">
-        <div>
-            <h1 class="mb-0">POS Report</h1>
-            <p class="mb-0 text-muted">{{ report_title }} sales performance and inventory overview.</p>
-        </div>
+      <div>
+        <h1 class="mb-0">POS Report</h1>
+        <p class="mb-0 text-muted">{{ report_title }} sales performance and inventory overview.</p>
+      </div>
 
-        <div class="d-flex align-items-center gap-2 bg-light p-2 border rounded" role="group" aria-label="Report date filters">
-            <a href="{% url 'report' %}?date_filter=today" class="btn btn-sm fw-medium {% if date_filter == 'today' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">Today</a>
-            <a href="{% url 'report' %}?date_filter=week" class="btn btn-sm fw-medium {% if date_filter == 'week' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">Week</a>
-            <a href="{% url 'report' %}?date_filter=month" class="btn btn-sm fw-medium {% if date_filter == 'month' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">Month</a>
-            <a href="{% url 'report' %}?date_filter=year" class="btn btn-sm fw-medium {% if date_filter == 'year' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">Year</a>
-            <a href="{% url 'report' %}?date_filter=all" class="btn btn-sm fw-medium {% if date_filter == 'all' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">All</a>
-        </div>
+      <div class="d-flex align-items-center gap-2 bg-light p-2 border rounded" role="group" aria-label="Report date filters">
+        <a href="{% url 'report' %}?date_filter=today"
+          class="btn btn-sm fw-medium {% if date_filter == 'today' %}
+            btn-warning text-dark
+          {% else %}
+            btn-outline-warning
+          {% endif %}">
+          Today
+        </a>
+        <a href="{% url 'report' %}?date_filter=week"
+          class="btn btn-sm fw-medium {% if date_filter == 'week' %}
+            btn-warning text-dark
+          {% else %}
+            btn-outline-warning
+          {% endif %}">
+          This Week
+        </a>
+        <a href="{% url 'report' %}?date_filter=month"
+          class="btn btn-sm fw-medium {% if date_filter == 'month' %}
+            btn-warning text-dark
+          {% else %}
+            btn-outline-warning
+          {% endif %}">
+          This Month
+        </a>
+        <a href="{% url 'report' %}?date_filter=year"
+          class="btn btn-sm fw-medium {% if date_filter == 'year' %}
+            btn-warning text-dark
+          {% else %}
+            btn-outline-warning
+          {% endif %}">
+          This Year
+        </a>
+        <a href="{% url 'report' %}?date_filter=all"
+          class="btn btn-sm fw-medium {% if date_filter == 'all' %}
+            btn-warning text-dark
+          {% else %}
+            btn-outline-warning
+          {% endif %}">
+          All
+        </a>
+      </div>
     </div>
 
     <div class="product-list-scroll flex-grow-1 overflow-y-auto" style="min-height: 0;">
-        <div class="row g-3 mx-0 mb-3">
-            <div class="col-12 col-md-6 col-xl-3">
-                <div class="card border bg-light shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <p class="text-muted small mb-1">Total Revenue</p>
-                                <h3 class="mb-0 text-danger">${{ total_revenue|floatformat:2 }}</h3>
-                            </div>
-                            <span class="badge text-bg-warning rounded-pill"><i class="fa-solid fa-dollar-sign"></i></span>
-                        </div>
-                    </div>
+      <div class="row g-3 mx-0 mb-3">
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="card border bg-light shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="text-muted small mb-1">Total Revenue</p>
+                  <h3 class="mb-0 text-danger">${{ total_revenue|floatformat:2 }}</h3>
                 </div>
+                <span class="badge text-bg-warning rounded-pill"><i class="fa-solid fa-dollar-sign"></i></span>
+              </div>
             </div>
-            <div class="col-12 col-md-6 col-xl-3">
-                <div class="card border bg-light shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <p class="text-muted small mb-1">Orders</p>
-                                <h3 class="mb-0">{{ total_orders }}</h3>
-                            </div>
-                            <span class="badge text-bg-secondary rounded-pill"><i class="fa-solid fa-receipt"></i></span>
-                        </div>
-                    </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="card border bg-light shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="text-muted small mb-1">Orders</p>
+                  <h3 class="mb-0">{{ total_orders }}</h3>
                 </div>
+                <span class="badge text-bg-secondary rounded-pill"><i class="fa-solid fa-receipt"></i></span>
+              </div>
             </div>
-            <div class="col-12 col-md-6 col-xl-3">
-                <div class="card border bg-light shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <p class="text-muted small mb-1">Items Sold</p>
-                                <h3 class="mb-0">{{ total_items }}</h3>
-                            </div>
-                            <span class="badge text-bg-success rounded-pill"><i class="fa-solid fa-boxes-stacked"></i></span>
-                        </div>
-                    </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="card border bg-light shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="text-muted small mb-1">Items Sold</p>
+                  <h3 class="mb-0">{{ total_items }}</h3>
                 </div>
+                <span class="badge text-bg-success rounded-pill"><i class="fa-solid fa-boxes-stacked"></i></span>
+              </div>
             </div>
-            <div class="col-12 col-md-6 col-xl-3">
-                <div class="card border bg-light shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <p class="text-muted small mb-1">Average Order</p>
-                                <h3 class="mb-0">${{ average_order|floatformat:2 }}</h3>
-                            </div>
-                            <span class="badge text-bg-info rounded-pill"><i class="fa-solid fa-chart-line"></i></span>
-                        </div>
-                    </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="card border bg-light shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="text-muted small mb-1">Average Order</p>
+                  <h3 class="mb-0">${{ average_order|floatformat:2 }}</h3>
                 </div>
+                <span class="badge text-bg-info rounded-pill"><i class="fa-solid fa-chart-line"></i></span>
+              </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mx-0">
+        <div class="col-12 col-xl-7">
+          <div class="card border shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">Top Products</h5>
+              <span class="text-muted small">By quantity sold</span>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th class="ps-3">Product</th>
+                    <th>Category</th>
+                    <th class="text-end">Items</th>
+                    <th class="text-end pe-3">Revenue</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for product in top_products %}
+                    <tr>
+                      <td class="ps-3 fw-medium">{{ product.product__name }}</td>
+                      <td class="text-muted">{{ product.product__category__name|default:'N/A' }}</td>
+                      <td class="text-end">{{ product.items|default:0 }}</td>
+                      <td class="text-end pe-3 text-danger fw-semibold">${{ product.revenue|default:0|floatformat:2 }}</td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="4" class="text-center text-muted py-4">No sales data for this period.</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
-        <div class="row g-3 mx-0">
-            <div class="col-12 col-xl-7">
-                <div class="card border  shadow-sm h-100">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Top Products</h5>
-                        <span class="text-muted small">By quantity sold</span>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="ps-3">Product</th>
-                                    <th>Category</th>
-                                    <th class="text-end">Items</th>
-                                    <th class="text-end pe-3">Revenue</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for product in top_products %}
-                                    <tr>
-                                        <td class="ps-3 fw-medium">{{ product.product__name }}</td>
-                                        <td class="text-muted">{{ product.product__category__name|default:"N/A" }}</td>
-                                        <td class="text-end">{{ product.items|default:0 }}</td>
-                                        <td class="text-end pe-3 text-danger fw-semibold">${{ product.revenue|default:0|floatformat:2 }}</td>
-                                    </tr>
-                                {% empty %}
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted py-4">No sales data for this period.</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <div class="col-12 col-xl-5">
+          <div class="card border shadow-sm h-100">
+            <div class="card-header bg-white">
+              <h5 class="mb-0">Payment Summary</h5>
             </div>
-
-            <div class="col-12 col-xl-5">
-                <div class="card border  shadow-sm h-100">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">Payment Summary</h5>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="ps-3">Method</th>
-                                    <th class="text-end">Orders</th>
-                                    <th class="text-end">Items</th>
-                                    <th class="text-end pe-3">Revenue</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for payment in payment_totals %}
-                                    <tr>
-                                        <td class="ps-3">
-                                            <span class="badge {% if payment.payment_method == 'cash' %}text-bg-secondary{% else %}text-bg-danger{% endif %} text-uppercase">
-                                                {{ payment.payment_method }}
-                                            </span>
-                                        </td>
-                                        <td class="text-end">{{ payment.orders|default:0 }}</td>
-                                        <td class="text-end">{{ payment.items|default:0 }}</td>
-                                        <td class="text-end pe-3 fw-semibold">${{ payment.revenue|default:0|floatformat:2 }}</td>
-                                    </tr>
-                                {% empty %}
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted py-4">No payment data for this period.</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th class="ps-3">Method</th>
+                    <th class="text-end">Orders</th>
+                    <th class="text-end">Items</th>
+                    <th class="text-end pe-3">Revenue</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for payment in payment_totals %}
+                    <tr>
+                      <td class="ps-3">
+                        <span class="badge {% if payment.payment_method == 'cash' %}
+                            text-bg-secondary
+                          {% else %}
+                            text-bg-danger
+                          {% endif %} text-uppercase">
+                          {{ payment.payment_method }}
+                        </span>
+                      </td>
+                      <td class="text-end">{{ payment.orders|default:0 }}</td>
+                      <td class="text-end">{{ payment.items|default:0 }}</td>
+                      <td class="text-end pe-3 fw-semibold">${{ payment.revenue|default:0|floatformat:2 }}</td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="4" class="text-center text-muted py-4">No payment data for this period.</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
             </div>
-
-            <div class="col-12 col-xl-7">
-                <div class="card border bg-light shadow-sm h-100">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">Recent Sales Days</h5>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="ps-3">Date</th>
-                                    <th class="text-end">Orders</th>
-                                    <th class="text-end">Items</th>
-                                    <th class="text-end pe-3">Revenue</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for day in daily_sales %}
-                                    <tr>
-                                        <td class="ps-3 fw-medium">{{ day.day|date:"M d, Y" }}</td>
-                                        <td class="text-end">{{ day.orders|default:0 }}</td>
-                                        <td class="text-end">{{ day.items|default:0 }}</td>
-                                        <td class="text-end pe-3 text-danger fw-semibold">${{ day.revenue|default:0|floatformat:2 }}</td>
-                                    </tr>
-                                {% empty %}
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted py-4">No daily sales data for this period.</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-xl-5">
-                <div class="card border bg-light shadow-sm h-100">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">Low Stock</h5>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="ps-3">Product</th>
-                                    <th>Category</th>
-                                    <th class="text-end pe-3">Stock</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for product in low_stock_products %}
-                                    <tr>
-                                        <td class="ps-3 fw-medium">{{ product.name }}</td>
-                                        <td class="text-muted">{{ product.category.name|default:"N/A" }}</td>
-                                        <td class="text-end pe-3">
-                                            <span class="badge {% if product.stock_quantity == 0 %}text-bg-danger{% else %}text-bg-warning{% endif %}">
-                                                {{ product.stock_quantity }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                {% empty %}
-                                    <tr>
-                                        <td colspan="3" class="text-center text-muted py-4">No low-stock products.</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12">
-                <div class="card border bg-light shadow-sm">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">Recent Orders</h5>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="ps-3">Order</th>
-                                    <th>Date</th>
-                                    <th class="text-end">Items</th>
-                                    <th class="text-end pe-3">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for order in recent_orders %}
-                                    <tr>
-                                        <td class="ps-3 fw-medium">{{ order.order_number }}</td>
-                                        <td class="text-muted">{{ order.latest_sale_date|date:"M d, Y H:i" }}</td>
-                                        <td class="text-end">{{ order.total_items|default:0 }}</td>
-                                        <td class="text-end pe-3 text-danger fw-semibold">${{ order.total_amount|default:0|floatformat:2 }}</td>
-                                    </tr>
-                                {% empty %}
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted py-4">No recent orders for this period.</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
+
+        <div class="col-12 col-xl-7">
+          <div class="card border bg-light shadow-sm h-100">
+            <div class="card-header bg-white">
+              <h5 class="mb-0">Recent Sales Days</h5>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th class="ps-3">Date</th>
+                    <th class="text-end">Orders</th>
+                    <th class="text-end">Items</th>
+                    <th class="text-end pe-3">Revenue</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for day in daily_sales %}
+                    <tr>
+                      <td class="ps-3 fw-medium">{{ day.day|date:'M d, Y' }}</td>
+                      <td class="text-end">{{ day.orders|default:0 }}</td>
+                      <td class="text-end">{{ day.items|default:0 }}</td>
+                      <td class="text-end pe-3 text-danger fw-semibold">${{ day.revenue|default:0|floatformat:2 }}</td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="4" class="text-center text-muted py-4">No daily sales data for this period.</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-xl-5">
+          <div class="card border bg-light shadow-sm h-100">
+            <div class="card-header bg-white">
+              <h5 class="mb-0">Low Stock</h5>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th class="ps-3">Product</th>
+                    <th>Category</th>
+                    <th class="text-end pe-3">Stock</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for product in low_stock_products %}
+                    <tr>
+                      <td class="ps-3 fw-medium">{{ product.name }}</td>
+                      <td class="text-muted">{{ product.category.name|default:'N/A' }}</td>
+                      <td class="text-end pe-3">
+                        <span class="badge {% if product.stock_quantity == 0 %}
+                            text-bg-danger
+                          {% else %}
+                            text-bg-warning
+                          {% endif %}">
+                          {{ product.stock_quantity }}
+                        </span>
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="3" class="text-center text-muted py-4">No low-stock products.</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card border bg-light shadow-sm">
+            <div class="card-header bg-white">
+              <h5 class="mb-0">Recent Orders</h5>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th class="ps-3">Order</th>
+                    <th>Date</th>
+                    <th class="text-end">Items</th>
+                    <th class="text-end pe-3">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for order in recent_orders %}
+                    <tr>
+                      <td class="ps-3 fw-medium">{{ order.order_number }}</td>
+                      <td class="text-muted">{{ order.latest_sale_date|date:'M d, Y H:i' }}</td>
+                      <td class="text-end">{{ order.total_items|default:0 }}</td>
+                      <td class="text-end pe-3 text-danger fw-semibold">${{ order.total_amount|default:0|floatformat:2 }}</td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="4" class="text-center text-muted py-4">No recent orders for this period.</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-</section>
+  </section>
 {% endblock %}

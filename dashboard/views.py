@@ -4,7 +4,6 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.db.models import Sum, F, DecimalField
 from django.db.models.functions import TruncDate, TruncHour, Coalesce
-from datetime import timedelta
 
 from products.models import Product
 from sales.models import Sale, Order
@@ -16,29 +15,37 @@ def dashboard(request):
     return render(request, 'dashboard.html')
 
 
-# ── Helper: Date Range ────────────────────────────────────────────────────────
-def get_date_range(period):
-    now = timezone.now()
+# ── Helper: Date Filter ───────────────────────────────────────────────────────
+def filter_by_period(queryset, period, field_name='sale_date'):
+    today = timezone.localdate()
+    date_lookup = f'{field_name}__date'
+    year_lookup = f'{field_name}__year'
+    month_lookup = f'{field_name}__month'
+
     if period == 'today':
-        start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        queryset = queryset.filter(**{date_lookup: today})
     elif period == 'week':
-        start = now - timedelta(days=7)
+        start_of_week = today - timezone.timedelta(days=today.weekday())
+        queryset = queryset.filter(**{f'{date_lookup}__gte': start_of_week})
     elif period == 'month':
-        start = now - timedelta(days=30)
+        queryset = queryset.filter(**{year_lookup: today.year, month_lookup: today.month})
     elif period == 'year':
-        start = now - timedelta(days=365)
+        queryset = queryset.filter(**{year_lookup: today.year})
+    elif period == 'all':
+        pass
     else:
-        start = now - timedelta(days=7)
-    return start, now
+        period = 'month'
+        queryset = queryset.filter(**{year_lookup: today.year, month_lookup: today.month})
+
+    return queryset, period
 
 
 # ── API: Dashboard Data ───────────────────────────────────────────────────────
 @login_required
 def dashboard_data(request):
-    period = request.GET.get('period', 'week')
-    start, end = get_date_range(period)
+    period = request.GET.get('period', 'month')
 
-    sales_qs = Sale.objects.filter(sale_date__gte=start, sale_date__lte=end)
+    sales_qs, period = filter_by_period(Sale.objects.all(), period)
 
     # ── KPI ───────────────────────────────────────────────────────────────────
     total_revenue = float(
@@ -50,10 +57,8 @@ def dashboard_data(request):
     total_expense = round(total_revenue * 0.4, 2)
     net_profit    = round(total_revenue - total_expense, 2)
 
-    order_count = Order.objects.filter(
-        sale__sale_date__gte=start,
-        sale__sale_date__lte=end
-    ).distinct().count()
+    orders_qs, _ = filter_by_period(Order.objects.all(), period, 'sale__sale_date')
+    order_count = orders_qs.distinct().count()
 
     # ── Sales Trend ───────────────────────────────────────────────────────────
     if period == 'today':
@@ -99,6 +104,7 @@ def dashboard_data(request):
         .values(
             prod_name=F('product__name'),
             prod_price=F('product__price'),
+            brand_name=F('product__brand__name'),
             cat_name=F('product__category__name'),
         )
         .annotate(
@@ -111,6 +117,7 @@ def dashboard_data(request):
         {
             'name':     p['prod_name'],
             'price':    float(p['prod_price']),
+            'brand':    p['brand_name'] or '—',
             'category': p['cat_name'] or '—',
             'qty':      p['total_qty'],
             'revenue':  float(p['total_rev']),

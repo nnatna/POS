@@ -6,19 +6,19 @@
 
 {% block content %}
   <section class="home-content sales-page d-flex flex-column h-100 w-100 p-4 overflow-hidden">
-    <div class="d-flex justify-content-between align-content-center gap-3 mb-3">
+    <div class="d-flex justify-content-between align-items-start gap-3 mb-3 flex-wrap">
       <div>
         <h1 class="mb-0">Sales</h1>
-        <p class="mb-0">Manage your sales here.</p>
+        <p class="mb-0 text-muted">Manage your sales here.</p>
       </div>
       <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
-        {% if selected_order_id or date_filter %}
+        {% if selected_order_id or date_filter != 'month' %}
           <div class="d-flex align-items-center gap-2 bg-light p-2 border rounded">
             {% if selected_order_id %}
               <button type="button" class="btn btn-sm fw-medium btn-outline-danger" title="Delete Order" data-bs-toggle="modal" data-bs-target="#deleteOrderModal">Delete Order</button>
             {% endif %}
-            {% if date_filter and not selected_order_id %}
-              <a href="{% url 'sales' %}{% if search_query %}?search={{ search_query|urlencode }}{% endif %}" class="btn btn-sm fw-medium btn-outline-secondary">Clear date filter</a>
+            {% if date_filter != 'month' and not selected_order_id %}
+              <a href="{% url 'sales' %}?date_filter=month{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" class="btn btn-sm fw-medium btn-outline-secondary">Clear date filter</a>
             {% endif %}
           </div>
         {% elif search_query %}
@@ -26,25 +26,45 @@
             <a href="{% url 'sales' %}{% if date_filter %}?date_filter={{ date_filter }}{% endif %}" class="btn btn-sm fw-medium btn-outline-secondary">Clear search</a>
           </div>
         {% endif %}
-        <div class="d-flex align-items-center gap-2 bg-light p-2 border rounded" role="group" aria-label="Date filters">
+        <div class="d-flex align-items-center gap-2 bg-light p-2 border rounded" role="group" aria-label="Sales date filters">
           <a href="{% url 'sales' %}?date_filter=today{% if selected_order_id %}&orders={{ selected_order_id }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}"
-             class="btn btn-sm fw-medium {% if date_filter == 'today' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">
+            class="btn btn-sm fw-medium {% if date_filter == 'today' %}
+              btn-warning text-dark
+            {% else %}
+              btn-outline-warning
+            {% endif %}">
             Today
           </a>
           <a href="{% url 'sales' %}?date_filter=week{% if selected_order_id %}&orders={{ selected_order_id }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}"
-             class="btn btn-sm fw-medium {% if date_filter == 'week' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">
-            Week
+            class="btn btn-sm fw-medium {% if date_filter == 'week' %}
+              btn-warning text-dark
+            {% else %}
+              btn-outline-warning
+            {% endif %}">
+            This Week
           </a>
           <a href="{% url 'sales' %}?date_filter=month{% if selected_order_id %}&orders={{ selected_order_id }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}"
-             class="btn btn-sm fw-medium {% if date_filter == 'month' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">
-            Month
+            class="btn btn-sm fw-medium {% if date_filter == 'month' %}
+              btn-warning text-dark
+            {% else %}
+              btn-outline-warning
+            {% endif %}">
+            This Month
           </a>
           <a href="{% url 'sales' %}?date_filter=year{% if selected_order_id %}&orders={{ selected_order_id }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}"
-             class="btn btn-sm fw-medium {% if date_filter == 'year' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">
-            Year
+            class="btn btn-sm fw-medium {% if date_filter == 'year' %}
+              btn-warning text-dark
+            {% else %}
+              btn-outline-warning
+            {% endif %}">
+            This Year
           </a>
           <a href="{% url 'sales' %}?date_filter=all{% if selected_order_id %}&orders={{ selected_order_id }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}"
-             class="btn btn-sm fw-medium {% if date_filter == 'all' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">
+            class="btn btn-sm fw-medium {% if date_filter == 'all' %}
+              btn-warning text-dark
+            {% else %}
+              btn-outline-warning
+            {% endif %}">
             All
           </a>
         </div>

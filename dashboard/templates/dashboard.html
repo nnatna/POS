@@ -1,357 +1,159 @@
 {% extends 'base.html' %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}
+  Dashboard
+{% endblock %}
 
 {% block content %}
+  <section class="home-content dashboard-page d-flex flex-column h-100 w-100 p-4 overflow-hidden">
+    <div class="d-flex justify-content-between align-items-start gap-3 mb-3 flex-wrap">
+      <div>
+        <h1 class="mb-0">Dashboard</h1>
+        <p class="mb-0 text-muted">Overview of sales performance and stock status.</p>
+      </div>
 
-<style>
-  :root{
-    --accent:#ffc107;--accent-dark:#ffc107;--dark:#111827;
-    --muted:#6b7280;--border:#e5e7eb;--card:#fff;--bg:#f1f5f9;
-    --green:#16a34a;--red:#dc2626;--blue:#2563eb;--purple:#7c3aed;
-  }
-  .dash-wrap{padding:1.5rem;}
-
-  /* ── Topbar ── */
-  .dash-topbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem;}
-  .dash-title{font-size:1.25rem;font-weight:800;letter-spacing:-.4px;}
-  .dash-sub{font-size:.75rem;color:var(--muted);font-weight:500;margin-top:1px;}
-  .period-tabs{display:flex;background:#fff;border:1px solid var(--border);border-radius:9px;padding:3px;gap:2px;}
-  .period-tabs button{border:none;background:transparent;padding:5px 14px;border-radius:6px;font-size:.78rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .18s;}
-  .period-tabs button.active{background:var(--accent);color:#fff;box-shadow:0 2px 6px rgba(249,115,22,.3);}
-  .db-badge{font-size:.68rem;font-weight:700;padding:2px 9px;border-radius:20px;background:#dcfce7;color:#15803d;display:inline-flex;align-items:center;gap:4px;}
-  .db-badge.err{background:#fee2e2;color:#dc2626;}
-  .db-badge.loading{background:#fef9c3;color:#854d0e;}
-
-  /* ── KPI ── */
-  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.25rem;}
-  @media(max-width:992px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
-  @media(max-width:576px){.kpi-grid{grid-template-columns:1fr;}}
-  .kpi{background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.1rem 1.25rem;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
-  .kpi:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08);}
-  .kpi-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;margin-bottom:.8rem;}
-  .kpi-label{font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.2rem;}
-  .kpi-value{font-size:1.6rem;font-weight:800;letter-spacing:-.8px;line-height:1.1;}
-  .kpi-sub{font-size:.72rem;font-weight:600;margin-top:.3rem;}
-  .kpi-accent{position:absolute;top:0;right:0;width:70px;height:70px;border-radius:0 16px 0 70px;opacity:.07;}
-
-  /* ── Charts row ── */
-  .charts-row{display:grid;grid-template-columns:1fr 320px;gap:1rem;margin-bottom:1.25rem;}
-  @media(max-width:900px){.charts-row{grid-template-columns:1fr;}}
-
-  /* ── Card ── */
-  .dash-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.25rem;}
-  .dash-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
-  .dash-card-title{font-size:.85rem;font-weight:700;}
-  .chart-wrap{position:relative;height:230px;}
-
-  /* ── Donut ── */
-  .donut-wrap{position:relative;width:150px;height:150px;margin:0 auto .85rem;}
-  .donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
-  .dc-val{font-size:1rem;font-weight:800;letter-spacing:-.5px;}
-  .dc-lbl{font-size:.6rem;color:var(--muted);font-weight:600;}
-  .legend-list{display:flex;flex-direction:column;gap:.3rem;}
-  .legend-row-item{display:flex;align-items:center;justify-content:space-between;font-size:.74rem;}
-  .ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-right:.4rem;}
-  .lname{display:flex;align-items:center;color:var(--muted);font-weight:600;}
-  .lval{font-weight:700;}
-  .lpct{font-size:.64rem;color:var(--muted);margin-left:.3rem;}
-
-  /* ── Bottom row ── */
-  .bottom-row{display:grid;grid-template-columns:1fr 290px;gap:1rem;}
-  @media(max-width:900px){.bottom-row{grid-template-columns:1fr;}}
-
-  /* ── Table ── */
-  .dt{width:100%;border-collapse:collapse;}
-  .dt th{font-size:.67rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;padding:.45rem .65rem;border-bottom:2px solid var(--border);white-space:nowrap;}
-  .dt td{font-size:.8rem;padding:.5rem .65rem;border-bottom:1px solid #f3f4f6;vertical-align:middle;}
-  .dt tr:last-child td{border-bottom:none;}
-  .dt tr:hover td{background:#fafafa;}
-  .bcat{font-size:.64rem;font-weight:700;padding:2px 7px;border-radius:20px;background:#f0f9ff;color:#0369a1;}
-  .rnum{width:22px;height:22px;border-radius:50%;background:#f3f4f6;display:inline-flex;align-items:center;justify-content:center;font-size:.69rem;font-weight:800;color:var(--muted);}
-  .rnum.g{background:#fef9c3;color:#854d0e;}
-  .rnum.s{background:#f1f5f9;color:#475569;}
-  .rnum.b{background:#fff7ed;color:#9a3412;}
-
-  /* ── Stock ── */
-  .stock-item{padding:.55rem 0;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;gap:.75rem;}
-  .stock-item:last-child{border-bottom:none;}
-  .stock-name{font-size:.81rem;font-weight:700;}
-  .stock-cat{font-size:.67rem;color:var(--muted);}
-  .stock-qty{font-size:1rem;font-weight:800;flex-shrink:0;}
-  .sbar-wrap{height:4px;background:#f3f4f6;border-radius:99px;margin-top:3px;width:90px;}
-  .sbar{height:4px;border-radius:99px;transition:width .5s;}
-
-  /* ── Animations ── */
-  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-  .anim{animation:fadeUp .35s ease both;}
-  .a1{animation-delay:.03s}.a2{animation-delay:.07s}
-  .a3{animation-delay:.11s}.a4{animation-delay:.15s}
-  .a5{animation-delay:.19s}.a6{animation-delay:.23s}
-  .a7{animation-delay:.27s}.a8{animation-delay:.31s}
-</style>
-
-<div class="dash-wrap">
-
-  <!-- ── Topbar ── -->
-  <div class="dash-topbar">
-    <div>
-      <div class="dash-title">Dashboard Overview</div>
-      <div style="display:flex;align-items:center;gap:.5rem;margin-top:3px;">
-        <span class="db-badge loading" id="dbBadge">⏳ Loading…</span>
-        <span class="dash-sub" id="dashSub">Fetching data from database</span>
+      <div class="d-flex align-items-center gap-2 bg-light p-2 border rounded" role="group" aria-label="Dashboard date filters">
+        <button type="button" class="btn btn-sm fw-medium btn-outline-warning" data-dashboard-period="today" onclick="loadDash('today', this)">Today</button>
+        <button type="button" class="btn btn-sm fw-medium btn-outline-warning" data-dashboard-period="week" onclick="loadDash('week', this)">This Week</button>
+        <button type="button" class="btn btn-sm fw-medium btn-warning text-dark" data-dashboard-period="month" onclick="loadDash('month', this)">This Month</button>
+        <button type="button" class="btn btn-sm fw-medium btn-outline-warning" data-dashboard-period="year" onclick="loadDash('year', this)">This Year</button>
+        <button type="button" class="btn btn-sm fw-medium btn-outline-warning" data-dashboard-period="all" onclick="loadDash('all', this)">All</button>
       </div>
     </div>
-    <div class="period-tabs">
-      <button onclick="loadDash('today',this)">Today</button>
-      <button onclick="loadDash('week',this)" class="active">This Week</button>
-      <button onclick="loadDash('month',this)">This Month</button>
-      <button onclick="loadDash('year',this)">This Year</button>
-    </div>
-  </div>
 
-  <!-- ── KPI Cards ── -->
-  <div class="kpi-grid">
-    <div class="kpi anim a1">
-      <div class="kpi-accent" style="background:var(--accent);"></div>
-      <div class="kpi-icon" style="background:#fff7ed;color:var(--accent);"><i class="bi bi-currency-dollar"></i></div>
-      <div class="kpi-label">Total Revenue</div>
-      <div class="kpi-value" id="kpiRev">—</div>
-      <div class="kpi-sub" id="kpiRevSub" style="color:var(--muted);">—</div>
-    </div>
-    <div class="kpi anim a2">
-      <div class="kpi-accent" style="background:var(--blue);"></div>
-      <div class="kpi-icon" style="background:#eff6ff;color:var(--blue);"><i class="bi bi-bag-check-fill"></i></div>
-      <div class="kpi-label">Total Sales</div>
-      <div class="kpi-value" id="kpiSales">—</div>
-      <div class="kpi-sub" id="kpiSalesSub" style="color:var(--muted);">—</div>
-    </div>
-    <div class="kpi anim a3">
-      <div class="kpi-accent" style="background:var(--red);"></div>
-      <div class="kpi-icon" style="background:#fef2f2;color:var(--red);"><i class="bi bi-arrow-down-circle-fill"></i></div>
-      <div class="kpi-label">Total Expense</div>
-      <div class="kpi-value" id="kpiExp">—</div>
-      <div class="kpi-sub" style="color:var(--red);">~40% of revenue</div>
-    </div>
-    <div class="kpi anim a4">
-      <div class="kpi-accent" style="background:var(--green);"></div>
-      <div class="kpi-icon" style="background:#f0fdf4;color:var(--green);"><i class="bi bi-graph-up-arrow"></i></div>
-      <div class="kpi-label">Net Profit</div>
-      <div class="kpi-value" id="kpiProfit">—</div>
-      <div class="kpi-sub" style="color:var(--green);">Revenue − Expense</div>
-    </div>
-  </div>
+    <div class="product-list-scroll flex-grow-1 overflow-y-auto" style="min-height: 0;">
+      <div class="row g-3 mx-0 mb-3">
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="card border bg-light shadow-sm h-100 anim a1">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="text-muted small mb-1">Total Revenue</p>
+                  <h3 class="mb-0 text-danger" id="kpiRev">—</h3>
+                  <div class="small text-muted fw-semibold mt-1" id="kpiRevSub">—</div>
+                </div>
+                <span class="badge text-bg-warning rounded-pill"><i class="fa-solid fa-dollar-sign"></i></span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-  <!-- ── Charts Row ── -->
-  <div class="charts-row">
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="card border bg-light shadow-sm h-100 anim a2">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="text-muted small mb-1">Total Sales</p>
+                  <h3 class="mb-0" id="kpiSales">—</h3>
+                  <div class="small text-muted fw-semibold mt-1" id="kpiSalesSub">—</div>
+                </div>
+                <span class="badge text-bg-secondary rounded-pill"><i class="fa-solid fa-receipt"></i></span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <!-- Line chart -->
-    <div class="dash-card anim a5">
-      <div class="dash-card-head">
-        <span class="dash-card-title">📈 Sales Trend</span>
-        <span style="font-size:.72rem;color:var(--muted);font-weight:600;" id="trendLbl">Last 7 days</span>
-      </div>
-      <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
-    </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="card border bg-light shadow-sm h-100 anim a3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="text-muted small mb-1">Total Expense</p>
+                  <h3 class="mb-0" id="kpiExp">—</h3>
+                  <div class="small text-muted fw-semibold mt-1">~40% of revenue</div>
+                </div>
+                <span class="badge text-bg-danger rounded-pill"><i class="fa-solid fa-arrow-trend-down"></i></span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <!-- Donut chart -->
-    <div class="dash-card anim a6">
-      <div class="dash-card-head">
-        <span class="dash-card-title">🍩 By Category</span>
-      </div>
-      <div class="donut-wrap">
-        <canvas id="donutChart"></canvas>
-        <div class="donut-center">
-          <div class="dc-val" id="donutTotal">—</div>
-          <div class="dc-lbl">Revenue</div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="card border bg-light shadow-sm h-100 anim a4">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="text-muted small mb-1">Net Profit</p>
+                  <h3 class="mb-0 text-success" id="kpiProfit">—</h3>
+                  <div class="small text-muted fw-semibold mt-1">Revenue - Expense</div>
+                </div>
+                <span class="badge text-bg-success rounded-pill"><i class="fa-solid fa-chart-line"></i></span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="legend-list" id="donutLegend"></div>
-    </div>
-  </div>
 
-  <!-- ── Bottom Row ── -->
-  <div class="bottom-row">
-
-    <!-- Top Products -->
-    <div class="dash-card anim a7">
-      <div class="dash-card-head">
-        <span class="dash-card-title">🏆 Top Products</span>
-        <span style="font-size:.72rem;color:var(--muted);font-weight:600;">by qty sold</span>
-      </div>
-      <table class="dt">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Product</th>
-            <th>Category</th>
-            <th style="text-align:center;">Qty</th>
-            <th>Revenue</th>
-          </tr>
-        </thead>
-        <tbody id="topProducts"></tbody>
-      </table>
-    </div>
-
-    <!-- Low Stock -->
-    <div class="dash-card anim a8">
-      <div class="dash-card-head">
-        <span class="dash-card-title">⚠️ Low Stock</span>
-        <span style="font-size:.68rem;font-weight:700;color:var(--red);">≤ 50 units</span>
-      </div>
-      <div id="lowStock">
-        <div style="color:var(--muted);font-size:.8rem;">Checking…</div>
-      </div>
-    </div>
-  </div>
-
-</div><!-- /dash-wrap -->
-
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-<script>
-const COLORS = ['#ffc107','#000000','#16a34a','#7c3aed','#ec4899','#eab308','#06b6d4','#ef4444'];
-
-// ── Init Charts ───────────────────────────────────────────────────────────────
-const lineCtx  = document.getElementById('lineChart').getContext('2d');
-const grad = lineCtx.createLinearGradient(0,0,0,230);
-grad.addColorStop(0,'rgba(249,115,22,.18)');
-grad.addColorStop(1,'rgba(249,115,22,0)');
-
-const lineChart = new Chart(lineCtx, {
-  type: 'line',
-  data: { labels:[], datasets:[{
-    data:[], borderColor:'#ffc107', backgroundColor:grad,
-    borderWidth:2.5, pointRadius:3, pointHoverRadius:6,
-    pointBackgroundColor:'#ffc107', fill:true, tension:.42
-  }]},
-  options:{
-    responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ display:false } },
-    scales:{
-      x:{ grid:{ display:false }, ticks:{ font:{ size:10 }, color:'#9ca3af', maxTicksLimit:12 } },
-      y:{ grid:{ color:'#f3f4f6' }, ticks:{
-        font:{ size:10 }, color:'#9ca3af',
-        callback: v => v>=1000 ? '$'+(v/1000).toFixed(1)+'k' : '$'+v
-      }}
-    },
-    animation:{ duration:600 }
-  }
-});
-
-const donutChart = new Chart(document.getElementById('donutChart').getContext('2d'), {
-  type:'doughnut',
-  data:{ labels:[], datasets:[{ data:[], backgroundColor:COLORS, borderWidth:0, hoverOffset:6 }] },
-  options:{
-    cutout:'68%',
-    plugins:{
-      legend:{ display:false },
-      tooltip:{ callbacks:{ label: c=>' $'+Number(c.parsed).toLocaleString('en',{minimumFractionDigits:2}) } }
-    },
-    animation:{ duration:700 }
-  }
-});
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-const fmt  = n => '$'+Number(n).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
-const fmtK = n => n>=1000 ? '$'+(n/1000).toFixed(1)+'k' : fmt(n);
-
-function badge(state){
-  const b = document.getElementById('dbBadge');
-  const map = { ok:'🟢 Django + SQLite', err:'🔴 API Error', loading:'⏳ Loading…' };
-  b.textContent = map[state];
-  b.className = 'db-badge' + (state==='ok' ? '' : state==='err' ? ' err' : ' loading');
-}
-
-const TREND_LBL = { today:'Today by hour', week:'Last 7 days', month:'Last 30 days', year:'Last 365 days' };
-
-// ── Load Dashboard ────────────────────────────────────────────────────────────
-async function loadDash(period, btn){
-  document.querySelectorAll('.period-tabs button').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  badge('loading');
-
-  try {
-   const res = await fetch(`/dashboard/api/dashboard/?period=${period}`);
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const d = await res.json();
-
-    // KPI
-    document.getElementById('kpiRev').textContent    = fmtK(d.kpi.total_revenue);
-    document.getElementById('kpiSales').textContent  = d.kpi.total_sales.toLocaleString();
-    document.getElementById('kpiExp').textContent    = fmtK(d.kpi.total_expense);
-    document.getElementById('kpiProfit').textContent = fmtK(d.kpi.net_profit);
-
-    const avg = d.kpi.total_sales > 0 ? fmt(d.kpi.total_revenue / d.kpi.total_sales) : '$0.00';
-    document.getElementById('kpiRevSub').textContent   = `avg ${avg} / sale`;
-    document.getElementById('kpiSalesSub').textContent = `${d.kpi.order_count} orders`;
-    document.getElementById('trendLbl').textContent    = TREND_LBL[period] || '';
-    document.getElementById('dashSub').textContent     = `Showing data for: ${TREND_LBL[period]}`;
-
-    // Line
-    lineChart.data.labels           = d.trend.map(t=>t.label);
-    lineChart.data.datasets[0].data = d.trend.map(t=>t.amount);
-    lineChart.update();
-
-    // Donut
-    const total = d.donut.reduce((s,c)=>s+c.value, 0);
-    document.getElementById('donutTotal').textContent = fmtK(total);
-    donutChart.data.labels                      = d.donut.map(c=>c.name);
-    donutChart.data.datasets[0].data            = d.donut.map(c=>c.value);
-    donutChart.data.datasets[0].backgroundColor = COLORS.slice(0, d.donut.length);
-    donutChart.update();
-
-    document.getElementById('donutLegend').innerHTML = d.donut.map((c,i)=>{
-      const pct = total > 0 ? ((c.value/total)*100).toFixed(1) : 0;
-      return `<div class="legend-row-item">
-        <span class="lname"><span class="ldot" style="background:${COLORS[i]}"></span>${c.name}</span>
-        <span style="display:flex;align-items:center;">
-          <span class="lval">${fmtK(c.value)}</span>
-          <span class="lpct">${pct}%</span>
-        </span>
-      </div>`;
-    }).join('');
-
-    // Top Products
-    const ranks = [['g','🥇'],['s','🥈'],['b','🥉']];
-    document.getElementById('topProducts').innerHTML = d.top_products.length
-      ? d.top_products.map((p,i)=>{
-          const [cls] = ranks[i] || ['',''];
-          return `<tr>
-            <td><span class="rnum ${cls}">${i+1}</span></td>
-            <td style="font-weight:700;">${p.name}</td>
-            <td><span class="bcat">${p.category}</span></td>
-            <td style="text-align:center;font-weight:700;">${p.qty}</td>
-            <td style="font-weight:700;color:var(--green);">${fmt(p.revenue)}</td>
-          </tr>`;
-        }).join('')
-      : `<tr><td colspan="5" style="color:var(--muted);padding:.75rem;font-size:.8rem;">No sales in this period</td></tr>`;
-
-    // Low Stock
-    document.getElementById('lowStock').innerHTML = d.low_stock.length
-      ? d.low_stock.map(p=>{
-          const pct   = Math.min(100, (p.stock_quantity/10)*100);
-          const color = p.stock_quantity<=3 ? '#ffc107' : p.stock_quantity<=6 ? '#ffc107' : '#ffc107';
-          return `<div class="stock-item">
-            <div style="flex:1;min-width:0;">
-              <div class="stock-name">${p.name}</div>
-              <div class="stock-cat">${p.cat_name||'—'}</div>
-              <div class="sbar-wrap"><div class="sbar" style="width:${pct}%;background:${color};"></div></div>
+      <div class="row g-3 mx-0">
+        <div class="col-12 col-xl-7">
+          <div class="card border shadow-sm h-100 anim a5">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">Sales Trend</h5>
+              <span class="text-muted small" id="trendLbl">Last 7 days</span>
             </div>
-            <div class="stock-qty" style="color:${color};">${p.stock_quantity}</div>
-          </div>`;
-        }).join('')
-      : '<div style="color:var(--green);font-size:.8rem;padding:.5rem 0;">✅ All products well stocked</div>';
+            <div class="card-body">
+              <div class="chart-wrap">
+                <canvas id="lineChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    badge('ok');
+        <div class="col-12 col-xl-5">
+          <div class="card border shadow-sm h-100 anim a6">
+            <div class="card-header bg-white">
+              <h5 class="mb-0">Revenue By Category</h5>
+            </div>
+            <div class="card-body">
+              <div class="donut-wrap">
+                <canvas id="donutChart"></canvas>
+                <div class="donut-center">
+                  <div class="dc-val" id="donutTotal">—</div>
+                  <div class="dc-lbl">Revenue</div>
+                </div>
+              </div>
+              <div class="legend-list" id="donutLegend"></div>
+            </div>
+          </div>
+        </div>
 
-  } catch(e) {
-    badge('err');
-    console.error('Dashboard error:', e);
-  }
-}
+        <div class="col-12 col-xl-7">
+          <div class="card border bg-light shadow-sm h-100 anim a7">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">Top Products</h5>
+              <span class="text-muted small">By quantity sold</span>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th class="ps-3">#</th>
+                    <th>Product</th>
+                    <th>Brands</th>
+                    <th>Category</th>
+                    <th class="text-end">Qty</th>
+                    <th class="text-end pe-3">Revenue</th>
+                  </tr>
+                </thead>
+                <tbody id="topProducts"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
 
-// ── Auto load ─────────────────────────────────────────────────────────────────
-loadDash('week', null);
-</script>
+        <div class="col-12 col-xl-5">
+          <div class="card border bg-light shadow-sm h-100 anim a8">
+            <div class="card-header bg-white">
+              <h5 class="mb-0">Low Stock</h5>
+            </div>
+            <div class="card-body" id="lowStock">
+              <div class="text-muted small">Checking...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 {% endblock %}

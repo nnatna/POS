@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from django.db import transaction
 from django.db.models import DecimalField, ExpressionWrapper, F, Max, Q, Sum
 from django.shortcuts import render, redirect
@@ -10,6 +8,29 @@ from django.utils import timezone
 from products.models import Product
 from .models import Order, Sale
 from .forms import SaleForm
+
+
+def filter_by_period(queryset, date_filter, field_name='sale_date'):
+    today = timezone.localdate()
+    date_lookup = f'{field_name}__date'
+    year_lookup = f'{field_name}__year'
+    month_lookup = f'{field_name}__month'
+
+    if date_filter == 'today':
+        queryset = queryset.filter(**{date_lookup: today})
+    elif date_filter == 'week':
+        start_of_week = today - timezone.timedelta(days=today.weekday())
+        queryset = queryset.filter(**{f'{date_lookup}__gte': start_of_week})
+    elif date_filter == 'year':
+        queryset = queryset.filter(**{year_lookup: today.year})
+    elif date_filter == 'all':
+        pass
+    else:
+        date_filter = 'month'
+        queryset = queryset.filter(**{year_lookup: today.year, month_lookup: today.month})
+
+    return queryset, date_filter
+
 
 @login_required
 def sales(request):
@@ -64,26 +85,13 @@ def sales(request):
                     messages.error(request, f"An error occurred: {str(e)}")
 
     order_id_filter = request.GET.get('orders')
-    date_filter = request.GET.get('date_filter', '').strip().lower()
+    date_filter = request.GET.get('date_filter', 'month').strip().lower()
     search_query = request.GET.get('search', '').strip()
     sales_qs = Sale.objects.select_related('order', 'product', 'product__category').order_by('-sale_date')
     selected_order_id = None
     selected_order_number = None
 
-    today = timezone.localdate()
-    if date_filter == 'today':
-        sales_qs = sales_qs.filter(sale_date__date=today)
-    elif date_filter == 'week':
-        start_of_week = today - timedelta(days=today.weekday())
-        sales_qs = sales_qs.filter(sale_date__date__gte=start_of_week)
-    elif date_filter == 'month':
-        sales_qs = sales_qs.filter(sale_date__year=today.year, sale_date__month=today.month)
-    elif date_filter == 'year':
-        sales_qs = sales_qs.filter(sale_date__year=today.year)
-    elif date_filter == 'all':
-        pass
-    else:
-        date_filter = ''
+    sales_qs, date_filter = filter_by_period(sales_qs, date_filter)
 
     if order_id_filter:
         try:
@@ -138,15 +146,7 @@ def sales(request):
         latest_sale_date=Max('sale__sale_date'),
     )
 
-    if date_filter == 'today':
-        recent_orders = recent_orders.filter(sale__sale_date__date=today)
-    elif date_filter == 'week':
-        start_of_week = today - timedelta(days=today.weekday())
-        recent_orders = recent_orders.filter(sale__sale_date__date__gte=start_of_week)
-    elif date_filter == 'month':
-        recent_orders = recent_orders.filter(sale__sale_date__year=today.year, sale__sale_date__month=today.month)
-    elif date_filter == 'year':
-        recent_orders = recent_orders.filter(sale__sale_date__year=today.year)
+    recent_orders, _ = filter_by_period(recent_orders, date_filter, 'sale__sale_date')
 
     if search_query:
         recent_orders = recent_orders.filter(
