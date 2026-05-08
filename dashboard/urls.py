@@ -22,5 +22,7 @@ from django.conf import settings
 from . import views
 
 urlpatterns = [
-    path('', views.dashboard, name='dashboard')
+    path('', views.dashboard, name='dashboard'),
+    path('api/dashboard/', views.dashboard_data, name='dashboard_data'),
+    path('api/sales/', views.sales_list, name='sales_list'),
 ]
