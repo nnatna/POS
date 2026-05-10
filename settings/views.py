@@ -5,6 +5,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from .models import Profile, OpeningHours
 from .forms import PersonalInformationForm, EmployeeForm, OpeningHoursForm
@@ -63,7 +64,11 @@ def upload_avatar(request):
     if request.method == 'POST' and request.FILES.get('avatar'):
         profile, _ = Profile.objects.get_or_create(user=request.user)
         profile.avatar = request.FILES['avatar']
-        profile.save()
+        try:
+            profile.save()
+        except (ValidationError, ValueError) as exc:
+            return JsonResponse({'success': False, 'error': str(exc)}, status=400)
+
         return JsonResponse({'success': True, 'avatar_url': profile.avatar.url})
     return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
 

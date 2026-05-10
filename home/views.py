@@ -9,6 +9,7 @@ from django.db import transaction
 from django.http import JsonResponse
 from decimal import Decimal, InvalidOperation
 from django.db.models import Sum
+from django.db.models.functions import Coalesce
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login as auth_login
 import json
@@ -19,15 +20,19 @@ import json
 def home(request):
     category_id = request.GET.get('category')
     search_query = request.GET.get('search', '').strip()
+    products = Product.objects.select_related('category', 'brand').annotate(
+        total_sold=Coalesce(Sum('sale__quantity'), 0)
+    )
+
     if category_id and category_id != 'all':
-        products = Product.objects.filter(category_id=category_id)
-    else:
-        products = Product.objects.all()
+        products = products.filter(category_id=category_id)
 
     if search_query:
         products = products.filter(
             Q(name__icontains=search_query)
         )
+
+    products = products.order_by('-total_sold', '-created_at')
 
     categories = Category.objects.all()
     recent_sales = Sale.objects.select_related('order', 'product', 'product__category').order_by('-sale_date')[:5]

@@ -1,5 +1,25 @@
-let cart = [];
+const CART_STORAGE_KEY = 'pos_checkout_cart';
+
+function loadCart() {
+    try {
+        const savedCart = window.sessionStorage.getItem(CART_STORAGE_KEY);
+        const parsedCart = savedCart ? JSON.parse(savedCart) : [];
+        return Array.isArray(parsedCart) ? parsedCart : [];
+    } catch (error) {
+        return [];
+    }
+}
+
+let cart = loadCart();
 window.cart = cart;
+
+function persistCart() {
+    try {
+        window.sessionStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    } catch (error) {
+        // Ignore storage failures and keep the in-memory cart usable.
+    }
+}
 
 // ១. ចាប់យក Event ពេល User ចុចប៊ូតុង Add to Cart (+)
 document.addEventListener('click', function(e) {
@@ -26,6 +46,7 @@ function addToCart(product) {
     } else {
         cart.push(product);
     }
+    persistCart();
     renderCart();
 }
 
@@ -115,6 +136,7 @@ function removeItem(index) {
     } else {
         cart.splice(index, 1);
     }
+    persistCart();
     renderCart();
 }
 
@@ -123,6 +145,7 @@ function increaseQty(index) {
         return;
     }
     cart[index].qty += 1;
+    persistCart();
     renderCart();
 }
 
@@ -135,6 +158,7 @@ function decreaseQty(index) {
     } else {
         cart.splice(index, 1);
     }
+    persistCart();
     renderCart();
 }
 
@@ -229,6 +253,9 @@ if (confirmCheckoutBtn) {
             .then(res => res.json())
             .then(result => {
                 if (result.message === 'Sale created successfully.') {
+                    cart = [];
+                    window.cart = cart;
+                    window.sessionStorage.removeItem(CART_STORAGE_KEY);
                     alert('Saved successfully! Invoice number: ' + result.order_number);
                     window.location.reload();
                 } else {
@@ -275,3 +302,5 @@ function getCsrfToken() {
     const cookie = document.cookie.split('; ').find(row => row.startsWith('csrftoken='));
     return cookie ? cookie.split('=')[1] : '';
 }
+
+renderCart();

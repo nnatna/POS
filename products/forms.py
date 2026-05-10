@@ -14,5 +14,5 @@ class ProductForm(forms.ModelForm):
             'stock_quantity': forms.NumberInput(attrs={'class': 'form-control bg-secondary-subtle', 'placeholder': '0', 'min': '0'}),
             'discount': forms.NumberInput(attrs={'class': 'form-control bg-secondary-subtle', 'placeholder': '0', 'step': '0.01', 'min': '0'}),
             'description': forms.Textarea(attrs={'class': 'form-control bg-secondary-subtle', 'rows': 3, 'placeholder': 'Enter product description'}),
-            'image': forms.ClearableFileInput(attrs={'class': 'form-control bg-secondary-subtle'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control bg-secondary-subtle', 'accept': 'image/*'}),
         }
