@@ -87,28 +87,30 @@ def sales(request):
     order_id_filter = request.GET.get('orders')
     date_filter = request.GET.get('date_filter', 'month').strip().lower()
     search_query = request.GET.get('search', '').strip()
-    sales_qs = Sale.objects.select_related('order', 'product', 'product__category').order_by('-sale_date')
+    base_sales_qs = Sale.objects.select_related('order', 'product', 'product__category').order_by('-sale_date')
     selected_order_id = None
     selected_order_number = None
 
-    sales_qs, date_filter = filter_by_period(sales_qs, date_filter)
+    base_sales_qs, date_filter = filter_by_period(base_sales_qs, date_filter)
+
+    if search_query:
+        base_sales_qs = base_sales_qs.filter(
+            Q(order__order_number__icontains=search_query)
+        )
+
+    sales_qs = base_sales_qs
 
     if order_id_filter:
         try:
             selected_order_id = int(order_id_filter)
             selected_order_number = Order.objects.filter(id=selected_order_id).values_list('order_number', flat=True).first()
             if selected_order_number:
-                sales_qs = sales_qs.filter(order_id=selected_order_id)
+                sales_qs = base_sales_qs.filter(order_id=selected_order_id)
             else:
                 selected_order_id = None
         except (ValueError, TypeError):
             selected_order_id = None
             selected_order_number = None
-
-    if search_query:
-        sales_qs = sales_qs.filter(
-            Q(order__order_number__icontains=search_query)
-        )
 
     line_subtotal_expression = ExpressionWrapper(
         F('product__price') * F('quantity'),
@@ -140,23 +142,17 @@ def sales(request):
         ),
     )
 
-    recent_orders = Order.objects.annotate(
-        total_amount=Sum('sale__total_amount'),
-        total_items=Sum('sale__quantity'),
-        latest_sale_date=Max('sale__sale_date'),
-    )
-
-    recent_orders, _ = filter_by_period(recent_orders, date_filter, 'sale__sale_date')
-
-    if search_query:
-        recent_orders = recent_orders.filter(
-            Q(order_number__icontains=search_query)
-            | Q(sale__product__name__icontains=search_query)
-            | Q(sale__product__brand__name__icontains=search_query)
-            | Q(sale__product__category__name__icontains=search_query)
+    recent_orders = (
+        base_sales_qs.values('order_id', 'order__order_number', 'payment_method')
+        .annotate(
+            id=F('order_id'),
+            order_number=F('order__order_number'),
+            total_amount=Sum('total_amount'),
+            total_items=Sum('quantity'),
+            latest_sale_date=Max('sale_date'),
         )
-
-    recent_orders = recent_orders.distinct().order_by('-id')[:50]
+        .order_by('-id')[:50]
+    )
 
     overall_totals = Sale.objects.aggregate(
         total_sales_amount=Sum('total_amount'),

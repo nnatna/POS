@@ -1,4 +1,13 @@
 function selectOrder(element, status, price, orderId) {
+    const url = new URL(window.location.href);
+    const isAlreadySelected = element.classList.contains('bg-warning') && url.searchParams.get('orders') === String(orderId);
+
+    if (isAlreadySelected) {
+        url.searchParams.delete('orders');
+        window.location.href = url.toString();
+        return;
+    }
+
     const allCards = document.querySelectorAll('.order-card');
     allCards.forEach(card => {
         card.classList.remove('bg-warning', 'text-dark');
@@ -23,7 +32,6 @@ function selectOrder(element, status, price, orderId) {
     activeInfo.classList.add('opacity-75');
 
     if (orderId) {
-        const url = new URL(window.location.href);
         url.searchParams.set('orders', orderId);
         window.location.href = url.toString();
     }

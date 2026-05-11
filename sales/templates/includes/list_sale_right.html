@@ -17,7 +17,7 @@
 
   {% endif %}"
   style="cursor: pointer;"
-  data-order-search="{{ order.order_number|lower }} {{ order.total_items|default:0 }} {{ order.sale_set.first.payment_method|default:'N/A'|lower }}"
+  data-order-search="{{ order.order_number|lower }} {{ order.total_items|default:0 }} {{ order.payment_method|default:'N/A'|lower }}"
   onclick="selectOrder(this, 'Paid', '{{ order.order_number }}', '{{ order.id }}')">
   <div class="d-flex justify-content-between align-items-center">
     <div class="d-flex align-items-center gap-3">
@@ -31,8 +31,8 @@
   <div class="d-flex justify-content-between align-items-end mt-2">
     <small class="info-text d-flex align-items-center gap-2 text-muted">
       Total items : {{ order.total_items|default:0 }}
-      Paid by : <small class="status-text text-uppercase badge {% if order.sale_set.first.payment_method == 'cash' %} bg-secondary {% else %} bg-danger {% endif %} fw-medium">
-      {{ order.sale_set.first.payment_method|default:"N/A" }}
+      Paid by : <small class="status-text text-uppercase badge {% if order.payment_method == 'cash' %} bg-secondary {% else %} bg-danger {% endif %} fw-medium">
+      {{ order.payment_method|default:"N/A" }}
        </small>
     </small>
     
