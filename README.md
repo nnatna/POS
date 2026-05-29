@@ -59,11 +59,15 @@ A complete **Point of Sale (POS) System** built with Django for retail businesse
 
 ## 🚀 Installation
 
-### 1. Clone the repository
+
 
 ```bash
+### 1. Clone the repository
+
 git clone https://github.com/your-username/POS.git
-cd POS### 2. Install dependencies
+cd POS
+
+### 2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
