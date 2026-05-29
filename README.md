@@ -37,7 +37,7 @@ A complete **Point of Sale (POS) System** built with Django for retail businesse
 ### Backend
 - **Django 4.2+** - Web framework
 - **SQLite/PostgreSQL** - Database
-- 
+ 
 ### Frontend
 - **HTML5** - Structure (1.7%)
 - **CSS3** - Styling (0.7%)
