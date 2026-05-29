@@ -30,25 +30,14 @@ A complete **Point of Sale (POS) System** built with Django for retail businesse
 - 📊 **Inventory Tracking** - Real-time stock management
 - 👥 **Customer Management** - Track customer purchase history
 - 📈 **Sales Reports** - Daily, monthly, and yearly reports
-- 🖨️ **Receipt Printing** - Print or email receipts
-- 🔐 **User Authentication** - Role-based access (Admin, Cashier, Manager)
-- 📱 **Responsive Design** - Works on desktop, tablet, and mobile
-
-### Image Display Features
-- 🖼️ Product image upload and display
-- 📁 Category-based image organization
-- 🎨 Image gallery view for products
-- ⚡ Lazy loading for better performance
-- 🔍 Zoom functionality on product images
+- 🖨️ **Receipt Printing** - Print Invoice
 
 ## 🛠️ Technology Stack
 
 ### Backend
 - **Django 4.2+** - Web framework
 - **SQLite/PostgreSQL** - Database
-- **Django REST Framework** - API (if applicable)
-- **ReportLab** - PDF report generation
-
+- 
 ### Frontend
 - **HTML5** - Structure (1.7%)
 - **CSS3** - Styling (0.7%)
@@ -73,5 +62,13 @@ A complete **Point of Sale (POS) System** built with Django for retail businesse
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/pos-system.git
-cd pos-system
+git clone https://github.com/your-username/POS.git
+cd POS### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+
+### 3. Run the server
+
+```bash
+python manage.py runserver
